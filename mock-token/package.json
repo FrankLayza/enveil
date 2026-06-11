@@ -1,0 +1,27 @@
+{
+  "name": "dropshield-mock-token",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Demo-only confidential ERC-7984 mock token + faucet for the DropShield airdrop dApp (Zama Season 3).",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
+    "faucet:sepolia": "hardhat run scripts/faucet.ts --network sepolia"
+  },
+  "devDependencies": {
+    "@fhevm/hardhat-plugin": "0.4.2",
+    "@fhevm/mock-utils": "0.4.2",
+    "@fhevm/solidity": "0.11.1",
+    "@nomicfoundation/hardhat-ethers": "^3.1.3",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/confidential-contracts": "0.4.1",
+    "@openzeppelin/contracts": "^5.6.1",
+    "@openzeppelin/contracts-upgradeable": "^5.6.1",
+    "@zama-fhe/relayer-sdk": "0.4.1",
+    "dotenv": "^16.4.5",
+    "encrypted-types": "^0.0.4",
+    "ethers": "^6.16.0",
+    "hardhat": "^2.26.0",
+    "typescript": "^5.6.0"
+  }
+}

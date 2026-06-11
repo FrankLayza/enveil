@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+dist-ssr/
+
+# env / secrets
+.env
+.env.local
+.env.*.local
+
+# editor / OS
+.DS_Store
+*.local
+.vscode/*
+!.vscode/extensions.json
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# personal, untracked dev notes (explainer companion to the PRD)
+IMPLEMENTATION_NOTES.md
+
+# nested project has its own ignores
+mock-token/node_modules/
+mock-token/artifacts/
+mock-token/cache/
+mock-token/typechain-types/
+mock-token/.env
+
+
+ConfidentialAirdrop_PRD.md
+ConfidentialAirdrop_PRD_v1_ORIGINAL.md

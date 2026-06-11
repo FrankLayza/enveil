@@ -1,0 +1,37 @@
+{
+  "name": "dropshield",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "DropShield — confidential token airdrop dApp on the Zama Protocol (TokenOps SDK). Zama Developer Program Season 3.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "pipeline": "tsx scripts/pipeline.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.101.0",
+    "@tokenops/sdk": "^1.0.0",
+    "@zama-fhe/react-sdk": "^3.0.1",
+    "@zama-fhe/sdk": "^3.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.17.0",
+    "viem": "^2.52.0",
+    "wagmi": "^2.19.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "dotenv": "^16.4.5",
+    "tailwindcss": "^4.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0"
+  }
+}
