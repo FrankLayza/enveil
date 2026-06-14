@@ -1,7 +1,75 @@
+@import url("https://stijndv.com/fonts/Eudoxus-Sans.css");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
+/* Grotesk Grotesque (demo, semibold weight) — used only for the nav wordmark.
+   Self-hosted from public/fonts. Personal-use demo with a partial glyph set. */
+@font-face {
+  font-family: "Grotesk Grotesque";
+  src: url("/fonts/stgroteskgrotesquedemosemibold-na22v.otf") format("opentype");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Import Lenis scroll styling */
+@import "lenis/dist/lenis.css";
+
+/* ── DropShield design tokens (LIGHT) ──────────────────────────────────────
+   Warm off-white canvas, near-black as the primary action, a single gold accent
+   for the "revealed / valuable" moment. Red reserved strictly for destructive.
+   Mono for on-chain data. Token NAMES are kept stable so components don't break. */
+@theme {
+  /* ── Surfaces ── */
+  --color-bg: #e2e2df;            /* page canvas */
+  --color-panel: #ffffff;         /* surface (cards) */
+  --color-panel-2: #f7f7f4;       /* surface-soft */
+  --color-recessed: #d4d3cd;      /* surface-recessed (insets, tracks) */
+  --color-edge: #cfcec8;          /* border */
+  --color-edge-strong: #b4b2a9;   /* border-hover */
+
+  /* ── Primary action = near-black ink ── */
+  --color-iris: #1a1a18;
+  --color-iris-dim: #000000;
+
+  /* ── Accent = Zama brand yellow ──
+     --color-gold      → #FFCB00 FILL/block (rings, bars, dots, badges, buttons)
+     --color-gold-hover→ #E6B800 hover for accent fills
+     --color-gold-tint → #FFF1B8 soft accent background wash
+     --color-gold-dim  → #3D2E00 accent TEXT on light/tint (readable) */
+  --color-gold: #ffcb00;
+  --color-gold-hover: #e6b800;
+  --color-gold-tint: #fff1b8;
+  --color-gold-dim: #3d2e00;
+
+  /* ── Status pairs (bg + text) ── */
+  --color-success-bg: #eaf3de;
+  --color-success-text: #27500a;
+  --color-warning-bg: #faeeda;
+  --color-warning-text: #633806;
+  --color-danger-bg: #fcebeb;
+  --color-danger: #791f1f;        /* danger text (name kept for components) */
+
+  /* legacy aliases (kept so existing components don't break) */
+  --color-accent-cyan: #0891b2;
+  --color-success-green: #27500a;
+  --color-encrypted: #9a9890;
+
+  /* ── Text ── */
+  --color-ink: #1a1a18;           /* text-primary */
+  --color-mute: #6b6a65;          /* text-secondary */
+  --color-faint: #9a9890;         /* text-tertiary */
+
+  --font-display: "Eudoxus Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Eudoxus Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  /* Wordmark face. Swap "Grotesk Grotesque" in here once a hosted/licensed copy
+     of that font is added (see note); falls back to Eudoxus extrabold for now. */
+  --font-wordmark: "Grotesk Grotesque", "Eudoxus Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html,
@@ -12,6 +80,123 @@ body,
 
 body {
   margin: 0;
-  font-family:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-color: var(--color-bg);
+
+  /* Faint precision dot-grid for subtle blueprint depth (light). */
+  background-image: radial-gradient(rgba(0, 0, 0, 0.05) 0.9px, transparent 0.9px);
+  background-size: 26px 26px;
+  background-position: -1px -1px;
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-edge);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-edge-strong);
+}
+
+/* Visible, styled focus */
+*:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Motion & Custom Gradients ─────────────────────────────────────────── */
+
+.mesh-gradient-bg {
+  background: var(--color-bg);
+}
+
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E");
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-step-in {
+  animation: step-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stagger {
+  opacity: 0;
+}
+.in-view .stagger {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes reveal-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.015);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animate-reveal {
+  animation: reveal-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Lenis Integration Specifics */
+html.lenis {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overflow: clip;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }

@@ -7,6 +7,9 @@ dist/
 dist-ssr/
 *.tsbuildinfo
 
+# FHE public-params cache (downloaded from relayer)
+.fhe-cache/
+
 # env / secrets
 .env
 .env.local

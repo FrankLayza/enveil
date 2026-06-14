@@ -15,6 +15,8 @@
  *   2. pnpm pipeline
  */
 import "dotenv/config";
+import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from "node:fs";
+import { join } from "node:path";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { sepolia } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
@@ -25,6 +27,38 @@ import {
   encryptUint64,
   signClaimAuthorization,
 } from "@tokenops/sdk/fhe-airdrop";
+
+/**
+ * Disk-backed GenericStorage so the multi-MB FHE public key/params download from
+ * the relayer ONCE and persist across runs. Without this, RelayerNode defaults to
+ * MemoryStorage and re-fetches every run, which times out against the flaky public
+ * testnet relayer (NODE_INIT 60s). Uint8Array values are tagged + base64-encoded.
+ */
+const CACHE_DIR = join(process.cwd(), ".fhe-cache");
+function fileStorage() {
+  mkdirSync(CACHE_DIR, { recursive: true });
+  const keyPath = (k: string) => join(CACHE_DIR, encodeURIComponent(k) + ".json");
+  return {
+    async get<T = unknown>(key: string): Promise<T | null> {
+      const p = keyPath(key);
+      if (!existsSync(p)) return null;
+      const raw = JSON.parse(readFileSync(p, "utf8"));
+      if (raw && raw.__u8) return Uint8Array.from(Buffer.from(raw.b64, "base64")) as T;
+      return raw.v as T;
+    },
+    async set<T = unknown>(key: string, value: T): Promise<void> {
+      const wrapped =
+        value instanceof Uint8Array
+          ? { __u8: true, b64: Buffer.from(value).toString("base64") }
+          : { v: value };
+      writeFileSync(keyPath(key), JSON.stringify(wrapped));
+    },
+    async delete(key: string): Promise<void> {
+      const p = keyPath(key);
+      if (existsSync(p)) rmSync(p);
+    },
+  };
+}
 
 // Minimal ERC-7984 setOperator ABI — deadline is uint48 (NOT uint256; wrong
 // type encodes silently). Used so the factory can pull the admin's tokens to fund.
@@ -47,6 +81,36 @@ function need(name: string): string {
   return v;
 }
 
+/**
+ * Retry a relayer-dependent step. Zama's public testnet relayer intermittently
+ * times out (30s, hardcoded in the SDK worker) or returns a fetch error during
+ * the server-side ZK proof step. These ops throw BEFORE any on-chain submission,
+ * so retrying is safe and the run stays idempotent on `userSalt`.
+ */
+async function withRetry<T>(label: string, fn: () => Promise<T>, attempts = 5): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      // Inspect both the error message and its .cause (the SDK wraps the timeout
+      // inside a ConfigurationError whose top message is "Failed to initialize…").
+      const cause = err instanceof Error && err.cause instanceof Error ? err.cause.message : "";
+      const msg = (err instanceof Error ? err.message : String(err)) + " " + cause;
+      const transient =
+        /timed out|fetch failed|Fetch POST failed|ENCRYPT|NODE_INIT|worker pool|initialize FHE|network|ECONNRESET|ETIMEDOUT/i.test(
+          msg,
+        );
+      if (!transient || i === attempts) throw err;
+      const waitMs = 2000 * i;
+      console.log(`     ⚠ ${label} attempt ${i}/${attempts} failed (${msg.split("\n")[0]}). retrying in ${waitMs / 1000}s…`);
+      await new Promise((r) => setTimeout(r, waitMs));
+    }
+  }
+  throw lastErr;
+}
+
 async function main() {
   const rpcUrl = need("RPC_URL");
   const adminPk = need("ADMIN_PRIVATE_KEY") as `0x${string}`;
@@ -65,15 +129,20 @@ async function main() {
   });
 
   // Node relayer for headless FHE encryption (browser uses @zama-fhe/react-sdk).
+  // fheArtifactStorage persists the FHE public params to disk so we don't re-download
+  // them (and time out) on every run.
   const encryptor = new RelayerNode({
     transports: { [SepoliaConfig.chainId]: { ...SepoliaConfig, network: rpcUrl } },
     getChainId: () => Promise.resolve(sepolia.id),
+    fheArtifactStorage: fileStorage(),
   });
 
   const allocation = 1_000_000n; // 1 cmUSD @ 6 decimals
   const now = Math.floor(Date.now() / 1000);
-  const userSalt =
-    "0x0000000000000000000000000000000000000000000000000000000000000001" as const;
+  // Unique salt per run → fresh campaign address each time (avoids colliding with
+  // a previously-deployed clone). Override with USER_SALT env for a fixed address.
+  const userSalt = (process.env.USER_SALT ??
+    `0x${now.toString(16).padStart(64, "0")}`) as `0x${string}`;
 
   console.log("admin    :", admin.address);
   console.log("recipient:", recipient.address);
@@ -107,22 +176,27 @@ async function main() {
     canExtendClaimWindow: true,
     admin: admin.address,
   };
-  const { airdrop: airdropAddress, hash: createHash } =
-    await factory.createAndFundConfidentialAirdrop({
-      params,
-      userSalt,
-      amount: allocation, // pool seed; >= total of all claims
-    });
+  const { airdrop: airdropAddress, hash: createHash } = await withRetry(
+    "createAndFund",
+    () =>
+      factory.createAndFundConfidentialAirdrop({
+        params,
+        userSalt,
+        amount: allocation, // pool seed; >= total of all claims
+      }),
+  );
   console.log("     campaign:", airdropAddress, "tx:", createHash);
 
   // 3) Authorize the recipient: encrypt (bound to recipient) + admin EIP-712 sign.
   console.log("\n3/5  encrypt + signClaimAuthorization…");
-  const encrypted = await encryptUint64({
-    encryptor,
-    contractAddress: airdropAddress,
-    userAddress: recipient.address, // MUST be recipient, not admin
-    value: allocation,
-  });
+  const encrypted = await withRetry("encryptUint64", () =>
+    encryptUint64({
+      encryptor,
+      contractAddress: airdropAddress,
+      userAddress: recipient.address, // MUST be recipient, not admin
+      value: allocation,
+    }),
+  );
   const signature = await signClaimAuthorization({
     walletClient: adminWallet,
     airdropAddress,
@@ -131,33 +205,35 @@ async function main() {
   });
   console.log("     payload ready");
 
-  // 4) Recipient claims. Wait for the start window first.
+  // 4) Recipient VERIFIES first (reveal allocation), then claims. Order matters:
+  //    getClaimAmount requires the signature to still be UNCLAIMED, so it must
+  //    run before claim() consumes it. This mirrors the real UX: reveal → claim.
   const airdrop = createConfidentialAirdropClient({
     publicClient,
     walletClient: recipientWallet,
     address: airdropAddress,
   });
-  console.log("\n4/5  waiting for claim window, then claim…");
+
+  console.log("\n4/5  waiting for claim window, then verify (getClaimAmount)…");
   while (!(await airdrop.isClaimWindowActive())) {
     await new Promise((r) => setTimeout(r, 3000));
   }
+  const view = await withRetry("getClaimAmount", () =>
+    airdrop.getClaimAmount({ encryptedInput: encrypted, signature }),
+  );
+  await publicClient.waitForTransactionReceipt({ hash: view.hash });
+  console.log("     granted handle:", view.handle, "tx:", view.hash);
+  console.log(
+    "     (recipient now decrypts this handle via relayer.userDecrypt with an",
+    "EIP-712 keypair to read plaintext — wired in the dApp. allocation was",
+    allocation.toString(), "raw units)",
+  );
+
+  // 5) Claim — consumes the signature and transfers the encrypted tokens.
+  console.log("\n5/5  claim…");
   const claimHash = await airdrop.claim({ encryptedInput: encrypted, signature });
   await publicClient.waitForTransactionReceipt({ hash: claimHash });
   console.log("     claimed:", claimHash);
-
-  // 5) Verify: recipient grants self decrypt access, then userDecrypts the handle.
-  console.log("\n5/5  getClaimAmount + userDecrypt (recipient-only)…");
-  const recipientAirdrop = createConfidentialAirdropClient({
-    publicClient,
-    walletClient: recipientWallet,
-    address: airdropAddress,
-  });
-  const view = await recipientAirdrop.getClaimAmount({ encryptedInput: encrypted, signature });
-  console.log("     granted handle:", view.handle, "tx:", view.hash);
-  console.log(
-    "     (decrypt via relayer.userDecrypt with a recipient EIP-712 keypair to read plaintext —",
-    "wired in the dApp; allocation was", allocation.toString(), "raw units)",
-  );
 
   console.log("\nPipeline complete ✅  campaign:", airdropAddress);
 }

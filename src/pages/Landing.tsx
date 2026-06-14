@@ -1,48 +1,81 @@
 import { Link } from "react-router-dom";
+import { Footer } from "@/components/Footer";
+
+const FEATURES = [
+  {
+    title: "Private",
+    body: "Amounts are encrypted on-chain with FHE. No observer — not even validators — can read who received how much.",
+  },
+  {
+    title: "Verifiable",
+    body: "Each recipient decrypts and cryptographically verifies their own allocation — and only their own — with one signature.",
+  },
+  {
+    title: "Composable",
+    body: "Built on the ERC-7984 standard and the audited TokenOps airdrop contracts on the Zama Protocol.",
+  },
+];
 
 export function Landing() {
   return (
-    <div className="flex flex-col items-center text-center">
-      <span className="mb-4 rounded-full border border-white/10 px-3 py-1 text-xs text-neutral-400">
-        Built on the Zama Protocol · TokenOps SDK
-      </span>
-      <h1 className="max-w-2xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-        Airdrop tokens without revealing who gets how much.
-      </h1>
-      <p className="mt-5 max-w-xl text-pretty text-neutral-400">
-        DropShield distributes confidential ERC-7984 tokens with amounts encrypted on-chain.
-        Recipients verify and claim only their own allocation — no one else can see it.
-      </p>
+    <div className="relative">
+      {/* Hero */}
+      <section className="flex min-h-[68vh] flex-col justify-center py-12">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-edge)] bg-[var(--color-panel)]/60 px-3 py-1 text-xs font-medium text-[var(--color-mute)] backdrop-blur-sm">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-iris)]" />
+          Zama Developer Program · Season 3
+        </span>
 
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <Link
-          to="/admin"
-          className="rounded-lg bg-white px-5 py-2.5 font-medium text-neutral-900 hover:bg-neutral-200"
-        >
-          Create an airdrop
-        </Link>
-        <Link
-          to="/claim"
-          className="rounded-lg border border-white/15 px-5 py-2.5 font-medium hover:bg-white/5"
-        >
-          Claim my tokens
-        </Link>
-      </div>
+        <h1 className="mt-6 max-w-3xl text-balance font-display text-5xl font-extrabold leading-[1.0] tracking-[-0.02em] text-[var(--color-ink)] sm:text-6xl lg:text-7xl">
+          Only you can see your{" "}
+          <span className="relative inline-block whitespace-nowrap text-[var(--color-ink)]">
+            <span
+              aria-hidden
+              className="absolute inset-x-[-0.08em] bottom-[0.1em] h-[0.5em] -rotate-1 rounded-sm bg-[var(--color-gold)]"
+            />
+            <span className="relative">allocation</span>
+          </span>
+          .
+        </h1>
 
-      <div className="mt-16 grid w-full max-w-3xl gap-4 sm:grid-cols-3">
-        <Feature title="Private" body="Amounts are encrypted on-chain via FHE. Validators can't read them." />
-        <Feature title="Verifiable" body="Each recipient decrypts and verifies only their own allocation." />
-        <Feature title="Composable" body="Powered by the audited TokenOps confidential airdrop contracts." />
-      </div>
-    </div>
-  );
-}
+        <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--color-mute)]">
+          DropShield airdrops confidential ERC-7984 tokens with every amount encrypted
+          on-chain. Recipients decrypt and claim only their own — invisible to everyone
+          else, including validators.
+        </p>
 
-function Feature({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-xl border border-white/10 p-5 text-left">
-      <h3 className="font-medium">{title}</h3>
-      <p className="mt-1 text-sm text-neutral-400">{body}</p>
+        <div className="mt-9 flex flex-wrap items-center gap-3">
+          <Link
+            to="/admin"
+            className="inline-flex items-center gap-2 rounded-md bg-[var(--color-iris)] px-6 py-3 text-sm font-semibold text-white transition-all duration-150 hover:bg-[var(--color-iris-dim)]"
+          >
+            Create an airdrop
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </Link>
+          <Link
+            to="/claim"
+            className="inline-flex items-center gap-2 rounded-md border border-[var(--color-edge-strong)] bg-[var(--color-panel)]/60 px-6 py-3 text-sm font-semibold text-[var(--color-ink)] backdrop-blur-sm transition-all duration-150 hover:bg-[var(--color-panel-2)]"
+          >
+            Claim my tokens
+          </Link>
+        </div>
+      </section>
+
+      {/* Features — tight row, hairline separators */}
+      <section className="mt-12 grid gap-px overflow-hidden rounded-lg border border-[var(--color-edge)] bg-[var(--color-edge)] sm:grid-cols-3">
+        {FEATURES.map((f) => (
+          <div key={f.title} className="bg-[var(--color-panel)] p-7">
+            <h3 className="font-display text-lg font-semibold tracking-tight text-[var(--color-ink)]">
+              {f.title}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-mute)]">{f.body}</p>
+          </div>
+        ))}
+      </section>
+
+      <Footer />
     </div>
   );
 }

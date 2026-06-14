@@ -1,48 +1,144 @@
-/**
- * Admin dashboard — create → fund → authorize → deliver.
- *
- * SCAFFOLD ONLY. The steps below are placeholders for the real flow wired to
- * @tokenops/sdk/fhe-airdrop/react hooks:
- *   1. Upload/validate recipients (CSV → {address, amount})
- *   2. useCreateConfidentialAirdropAndGetAddress({ token, start, end, canExtend, admin })
- *   3. setOperator (uint48 deadline) + useFundConfidentialAirdrop
- *   4. per recipient: encryptUint64 → useSignClaimAuthorization
- *   5. export { encryptedInput, signature, amount } payloads / claim links
- */
+import { useState } from "react";
+import { Stepper, type StepDef } from "@/components/Stepper";
+import { StepRecipients } from "@/components/admin/StepRecipients";
+import { StepCreate } from "@/components/admin/StepCreate";
+import { StepFund } from "@/components/admin/StepFund";
+import { StepAuthorize } from "@/components/admin/StepAuthorize";
+import { StepDeliver } from "@/components/admin/StepDeliver";
+import type { Recipient } from "@/lib/recipients";
+import { totalRawUnits } from "@/lib/recipients";
+
+const STEPS: StepDef[] = [
+  { id: 1, label: "Recipients" },
+  { id: 2, label: "Create" },
+  { id: 3, label: "Fund" },
+  { id: 4, label: "Authorize" },
+  { id: 5, label: "Deliver" },
+];
+
 export function Admin() {
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Create a confidential airdrop</h1>
-      <p className="mt-2 text-neutral-400">
-        Upload recipients, fund the campaign, and authorize private allocations.
-      </p>
+  const [current, setCurrent] = useState(1);
+  const [recipients, setRecipients] = useState<Recipient[]>([]);
 
-      <ol className="mt-8 space-y-3">
-        <Step n={1} title="Add recipients" desc="Upload a CSV of address, amount." />
-        <Step n={2} title="Create campaign" desc="Deploy via the TokenOps factory." />
-        <Step n={3} title="Fund" desc="Authorize + transfer confidential tokens in." />
-        <Step n={4} title="Authorize recipients" desc="Encrypt each amount and sign." />
-        <Step n={5} title="Deliver" desc="Export claim links / payloads." />
-      </ol>
-
-      <p className="mt-8 text-sm text-neutral-500">
-        Flow not yet wired — scaffold step. See <code>scripts/pipeline.ts</code> for the proven
-        end-to-end calls this UI will drive.
-      </p>
-    </div>
+  // Form states lifted for campaign parameters
+  const [tokenAddress, setTokenAddress] = useState(
+    import.meta.env.VITE_MOCK_TOKEN_ADDRESS || ""
   );
-}
+  const [campaignAddress, setCampaignAddress] = useState("");
+  const [userSalt, setUserSalt] = useState<`0x${string}`>(() => {
+    const now = Math.floor(Date.now() / 1000);
+    return `0x${now.toString(16).padStart(64, "0")}` as `0x${string}`;
+  });
 
-function Step({ n, title, desc }: { n: number; title: string; desc: string }) {
+  const [startTimestamp, setStartTimestamp] = useState(
+    () => Math.floor(Date.now() / 1000) + 120 // 2 minutes from now
+  );
+  const [endTimestamp, setEndTimestamp] = useState(
+    () => Math.floor(Date.now() / 1000) + 7 * 86400 // 7 days from now
+  );
+  const [canExtendClaimWindow, setCanExtendClaimWindow] = useState(true);
+
+  // Authorization payloads saved at Step 4, shown/delivered at Step 5
+  const [authorizations, setAuthorizations] = useState<
+    Array<{
+      address: string;
+      amount: string;
+      encryptedInput: { handle: string; inputProof: string };
+      signature: string;
+    }>
+  >([]);
+
+  const handleReset = () => {
+    setRecipients([]);
+    setCampaignAddress("");
+    setAuthorizations([]);
+    const now = Math.floor(Date.now() / 1000);
+    setUserSalt(`0x${now.toString(16).padStart(64, "0")}`);
+    setStartTimestamp(now + 120);
+    setEndTimestamp(now + 7 * 86400);
+    setCanExtendClaimWindow(true);
+    setCurrent(1);
+  };
+
+  const totalAmount = totalRawUnits(recipients);
+
   return (
-    <li className="flex gap-4 rounded-xl border border-white/10 p-4">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm">
-        {n}
-      </span>
-      <div>
-        <h3 className="font-medium">{title}</h3>
-        <p className="text-sm text-neutral-400">{desc}</p>
+    <div className="mx-auto max-w-3xl">
+      <header className="mb-8 flex items-baseline justify-between">
+        <h1 className="text-xl font-semibold tracking-tight">Campaign wizard</h1>
+        <span className="font-mono text-xs text-[var(--color-faint)]">
+          step {current} of {STEPS.length}
+        </span>
+      </header>
+
+      <div className="rounded-2xl border border-[var(--color-edge)] bg-[var(--color-panel)] p-6 sm:p-8">
+        <div className="mb-8">
+          <Stepper steps={STEPS} current={current} />
+        </div>
+
+        {current === 1 && (
+          <StepRecipients
+            recipients={recipients}
+            setRecipients={setRecipients}
+            onNext={() => setCurrent(2)}
+          />
+        )}
+
+        {current === 2 && (
+          <StepCreate
+            tokenAddress={tokenAddress}
+            setTokenAddress={setTokenAddress}
+            userSalt={userSalt}
+            setUserSalt={setUserSalt}
+            startTimestamp={startTimestamp}
+            setStartTimestamp={setStartTimestamp}
+            endTimestamp={endTimestamp}
+            setEndTimestamp={setEndTimestamp}
+            canExtendClaimWindow={canExtendClaimWindow}
+            setCanExtendClaimWindow={setCanExtendClaimWindow}
+            onSuccess={(addr) => {
+              setCampaignAddress(addr);
+              setCurrent(3);
+            }}
+            onBack={() => setCurrent(1)}
+          />
+        )}
+
+        {current === 3 && (
+          <StepFund
+            tokenAddress={tokenAddress}
+            campaignAddress={campaignAddress}
+            userSalt={userSalt}
+            startTimestamp={startTimestamp}
+            endTimestamp={endTimestamp}
+            canExtendClaimWindow={canExtendClaimWindow}
+            totalAmount={totalAmount}
+            onSuccess={() => setCurrent(4)}
+            onBack={() => setCurrent(2)}
+          />
+        )}
+
+        {current === 4 && (
+          <StepAuthorize
+            campaignAddress={campaignAddress}
+            recipients={recipients}
+            onSuccess={(auths) => {
+              setAuthorizations(auths);
+              setCurrent(5);
+            }}
+            onBack={() => setCurrent(3)}
+          />
+        )}
+
+        {current === 5 && (
+          <StepDeliver
+            tokenAddress={tokenAddress}
+            campaignAddress={campaignAddress}
+            authorizations={authorizations}
+            onReset={handleReset}
+          />
+        )}
       </div>
-    </li>
+    </div>
   );
 }

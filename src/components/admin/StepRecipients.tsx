@@ -1,0 +1,236 @@
+import { useCallback, useRef, useState } from "react";
+import {
+  type Recipient,
+  validateRecipient,
+  parseRecipientsCsv,
+  totalRawUnits,
+  formatTokens,
+} from "@/lib/recipients";
+
+let _seq = 0;
+const newId = () => `r${_seq++}`;
+
+/**
+ * Step 1 — Recipients. CSV dropzone + editable table + live total.
+ * Pure frontend: no chain calls, no relayer. Emits a clean recipient list upward.
+ */
+export function StepRecipients({
+  recipients,
+  setRecipients,
+  onNext,
+}: {
+  recipients: Recipient[];
+  setRecipients: (r: Recipient[]) => void;
+  onNext: () => void;
+}) {
+  const [dragging, setDragging] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  const allAddresses = recipients.map((r) => r.address);
+  const issuesById = new Map(
+    recipients.map((r) => [r.id, validateRecipient(r, allAddresses)]),
+  );
+  const validCount = recipients.filter((r) => (issuesById.get(r.id) ?? []).length === 0).length;
+  const total = totalRawUnits(recipients.filter((r) => (issuesById.get(r.id) ?? []).length === 0));
+  const canAdvance = recipients.length > 0 && validCount === recipients.length;
+
+  const ingest = useCallback(
+    (text: string) => {
+      const parsed = parseRecipientsCsv(text, newId);
+      if (parsed.length) {
+        // Replace placeholder-empty rows; otherwise append.
+        const existing = recipients.filter((r) => r.address.trim() || r.amount.trim());
+        setRecipients([...existing, ...parsed]);
+      }
+    },
+    [recipients, setRecipients],
+  );
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragging(false);
+      const file = e.dataTransfer.files?.[0];
+      if (file) file.text().then(ingest);
+    },
+    [ingest],
+  );
+
+  const addRow = () => setRecipients([...recipients, { id: newId(), address: "", amount: "" }]);
+  const editRow = (id: string, field: "address" | "amount", value: string) =>
+    setRecipients(recipients.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
+  const removeRow = (id: string) => setRecipients(recipients.filter((r) => r.id !== id));
+
+  return (
+    <div className="animate-step-in">
+      {/* Dropzone */}
+      <label
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={onDrop}
+        className={
+          "flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 text-center transition-colors duration-150 " +
+          (dragging
+            ? "border-[var(--color-gold)] bg-[var(--color-gold)]/5"
+            : "border-[var(--color-edge-strong)] hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-panel-2)]")
+        }
+      >
+        <input
+          ref={fileInput}
+          type="file"
+          accept=".csv,text/csv,text/plain"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) f.text().then(ingest);
+            e.target.value = "";
+          }}
+        />
+        <UploadIcon />
+        <p className="mt-3 text-lg font-medium text-[var(--color-ink)]">Drop recipients.csv here</p>
+        <p className="mt-1 text-sm text-[var(--color-mute)]">
+          Columns: <span className="font-mono text-[var(--color-faint)]">address, amount</span> — or
+          add rows manually below
+        </p>
+      </label>
+
+      {/* Table */}
+      <div className="mt-6 overflow-hidden rounded-xl border border-[var(--color-edge)] bg-[var(--color-panel)]">
+        <div className="grid grid-cols-[1fr_auto_40px] items-center gap-3 border-b border-[var(--color-edge)] bg-[var(--color-panel-2)] px-4 py-2.5">
+          <span className="text-xs font-medium uppercase tracking-wider text-[var(--color-faint)]">
+            Wallet address
+          </span>
+          <span className="text-right text-xs font-medium uppercase tracking-wider text-[var(--color-faint)]">
+            Amount
+          </span>
+          <span />
+        </div>
+
+        {recipients.length === 0 ? (
+          <div className="px-4 py-8 text-center text-sm text-[var(--color-faint)]">
+            No recipients yet. Drop a CSV above or{" "}
+            <button
+              onClick={addRow}
+              className="font-medium text-[var(--color-iris)] underline-offset-2 hover:underline"
+            >
+              add the first row
+            </button>
+            .
+          </div>
+        ) : (
+          recipients.map((r) => {
+            const issues = issuesById.get(r.id) ?? [];
+            const addrIssue = issues.find((i) => i.field === "address");
+            const amtIssue = issues.find((i) => i.field === "amount");
+            return (
+              <div
+                key={r.id}
+                className="grid grid-cols-[1fr_auto_40px] items-center gap-3 border-b border-[var(--color-edge)] px-4 py-2 last:border-b-0"
+              >
+                <div>
+                  <input
+                    value={r.address}
+                    onChange={(e) => editRow(r.id, "address", e.target.value)}
+                    placeholder="0x…"
+                    spellCheck={false}
+                    className="w-full bg-transparent font-mono text-sm text-[var(--color-ink)] placeholder:text-[var(--color-faint)] focus:outline-none"
+                  />
+                  {addrIssue && (
+                    <span className="text-xs text-[var(--color-danger)]">{addrIssue.message}</span>
+                  )}
+                </div>
+                <div className="text-right">
+                  <input
+                    value={r.amount}
+                    onChange={(e) => editRow(r.id, "amount", e.target.value)}
+                    placeholder="0"
+                    inputMode="decimal"
+                    className="w-28 bg-transparent text-right font-mono text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-faint)] focus:outline-none"
+                  />
+                  {amtIssue && (
+                    <span className="block text-xs text-[var(--color-danger)]">{amtIssue.message}</span>
+                  )}
+                </div>
+                <button
+                  onClick={() => removeRow(r.id)}
+                  aria-label="Remove recipient"
+                  className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--color-faint)] transition-colors duration-150 hover:bg-[var(--color-danger)]/10 hover:text-[var(--color-danger)]"
+                >
+                  <TrashIcon />
+                </button>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Add row */}
+      {recipients.length > 0 && (
+        <button
+          onClick={addRow}
+          className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-mute)] transition-colors duration-150 hover:text-[var(--color-ink)]"
+        >
+          <PlusIcon /> Add row
+        </button>
+      )}
+
+      {/* Footer: total + advance */}
+      <div className="mt-6 flex items-center justify-between border-t border-[var(--color-edge)] pt-5">
+        <p className="text-sm text-[var(--color-mute)]">
+          <span className="font-mono font-medium text-[var(--color-ink)]">{validCount}</span>{" "}
+          recipient{validCount === 1 ? "" : "s"}
+          <span className="mx-2 text-[var(--color-faint)]">·</span>
+          <span className="font-mono font-medium text-[var(--color-gold-dim)]">
+            {formatTokens(total)}
+          </span>{" "}
+          tokens total
+          {validCount < recipients.length && (
+            <span className="ml-2 text-[var(--color-danger)]">
+              · {recipients.length - validCount} need fixing
+            </span>
+          )}
+        </p>
+        <button
+          onClick={onNext}
+          disabled={!canAdvance}
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-iris)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-[var(--color-iris-dim)] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Next: create campaign <ArrowIcon />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── icons (sized to their text) ───────────────────────────────────────── */
+function UploadIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-mute)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+    </svg>
+  );
+}
+function TrashIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  );
+}
+function PlusIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+function ArrowIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}

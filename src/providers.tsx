@@ -2,7 +2,7 @@ import { useMemo, type ReactNode } from "react";
 import { WagmiProvider, useWalletClient } from "wagmi";
 import { sepolia } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit";
 import { createPublicClient, http } from "viem";
 import {
   ZamaProvider,
@@ -66,7 +66,10 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={darkTheme()} modalSize="compact">
+        <RainbowKitProvider
+          theme={lightTheme({ accentColor: "#0f0f0f", borderRadius: "medium" })}
+          modalSize="compact"
+        >
           <ZamaSigned>{children}</ZamaSigned>
         </RainbowKitProvider>
       </QueryClientProvider>
