@@ -1,5 +1,6 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { ReactLenis } from "lenis/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Landing } from "@/pages/Landing";
 import { Admin } from "@/pages/Admin";
 import { Claim } from "@/pages/Claim";
@@ -12,6 +13,7 @@ export function App() {
   return (
     <ReactLenis root>
       <div className="min-h-full bg-bg text-ink noise-overlay mesh-gradient-bg">
+        <SpeedInsights />
         {/* ── Floating pill navbar ────────────────────────────────────── */}
         <header className="sticky top-0 z-20 px-6 pt-4 pb-2">
           <div className="mx-auto flex max-w-5xl items-center justify-between">
