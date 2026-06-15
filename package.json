@@ -15,6 +15,7 @@
     "@rainbow-me/rainbowkit": "^2.2.11",
     "@tanstack/react-query": "^5.101.0",
     "@tokenops/sdk": "^1.0.0",
+    "@vercel/speed-insights": "^2.0.0",
     "@zama-fhe/react-sdk": "^3.0.1",
     "@zama-fhe/sdk": "^3.0.1",
     "framer-motion": "^12.40.0",
