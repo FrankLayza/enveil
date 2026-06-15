@@ -21,8 +21,14 @@ export function ConfidentialBalance({ tokenAddress }: { tokenAddress?: `0x${stri
 
   const balanceQuery = useConfidentialBalance(
     { tokenAddress: token as `0x${string}` },
-    { enabled: revealed && !!token && isConnected },
+    {
+      enabled: revealed && !!token && isConnected,
+      retry: 4,
+      retryDelay: (attempt) => Math.min(2000 * 2 ** attempt, 8000),
+    },
   );
+
+  const isRetrying = balanceQuery.isFetching && balanceQuery.failureCount > 0;
 
   if (!token) {
     return (
@@ -65,7 +71,7 @@ export function ConfidentialBalance({ tokenAddress }: { tokenAddress?: `0x${stri
           {balanceQuery.isPending ? (
             <div className="flex items-center gap-2 text-sm text-mute">
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gold-dim/30 border-t-gold-dim" />
-              Decrypting your balance…
+              {isRetrying ? `Relayer slow — retrying (${balanceQuery.failureCount})…` : "Decrypting your balance…"}
             </div>
           ) : balanceQuery.isError ? (
             <p className="text-xs text-danger">

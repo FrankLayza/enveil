@@ -148,14 +148,20 @@ export function Claim() {
     address: campaignAddress as `0x${string}`,
   });
 
-  // Decrypt the granted handle via the Zama relayer
+  // Decrypt the granted handle via the Zama relayer. The relayer intermittently
+  // times out — react-query auto-retries (transient by nature) with backoff so a
+  // single slow response doesn't hard-fail the reveal.
   const decryptQuery = useUserDecrypt(
     {
       handles: revealHandle
         ? [{ handle: revealHandle, contractAddress: campaignAddress as `0x${string}` }]
         : [],
     },
-    { enabled: !!revealHandle && !!campaignAddress }
+    {
+      enabled: !!revealHandle && !!campaignAddress,
+      retry: 4,
+      retryDelay: (attempt) => Math.min(2000 * 2 ** attempt, 8000),
+    }
   );
 
   useEffect(() => {
@@ -163,6 +169,21 @@ export function Claim() {
     const value = decryptQuery.data[revealHandle];
     if (typeof value === "bigint") setDecryptedAmount(value);
   }, [decryptQuery.data, revealHandle]);
+
+  // After react-query exhausts retries, surface a clear (relayer-aware) error.
+  useEffect(() => {
+    if (!decryptQuery.error) return;
+    const msg = decryptQuery.error.message || "";
+    setErrorMsg(
+      /timed out|fetch|relayer|network|ENCRYPT|worker/i.test(msg)
+        ? "The Zama relayer is unresponsive right now. Wait a moment and click Decrypt again."
+        : msg || "Decryption failed.",
+    );
+  }, [decryptQuery.error]);
+
+  // Surface a calm "relayer slow, retrying" notice while react-query retries.
+  const isDecryptRetrying =
+    !!revealHandle && decryptedAmount === null && decryptQuery.failureCount > 0 && decryptQuery.isFetching;
 
   const isRevealing =
     revealMutation.isPending || (!!revealHandle && decryptedAmount === null && decryptQuery.isFetching);
@@ -411,11 +432,13 @@ export function Claim() {
                     <button
                       onClick={handleReveal}
                       disabled={isRevealing}
-                      className="w-full rounded-lg border border-gold/40 bg-gold/5 py-2.5 text-sm font-semibold text-gold-dim transition-all hover:bg-gold/10"
+                      className="w-full rounded-lg border border-gold/40 bg-gold/5 py-2.5 text-sm font-semibold text-gold-dim transition-all hover:bg-gold/10 disabled:opacity-60"
                     >
-                      {isRevealing
-                        ? "Revealing and Decrypting FHE..."
-                        : "Decrypt & Verify Allocation"}
+                      {isDecryptRetrying
+                        ? `Relayer slow — retrying (${decryptQuery.failureCount})…`
+                        : isRevealing
+                          ? "Revealing & decrypting…"
+                          : "Decrypt & Verify Allocation"}
                     </button>
                   </div>
                 )}

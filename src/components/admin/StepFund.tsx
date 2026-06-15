@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useAccount, useChainId, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useChainId, useWriteContract, useWaitForTransactionReceipt, useBalance } from "wagmi";
+import { formatEther } from "viem";
 import { getFheAirdropFactoryAddress } from "@tokenops/sdk";
 import { useZamaSDK } from "@zama-fhe/react-sdk";
 import { useFundConfidentialAirdrop, useFactoryDefaultGasFee, useFactoryCustomFee } from "@tokenops/sdk/fhe-airdrop/react";
@@ -51,6 +52,11 @@ export function StepFund({
   const [retryNotice, setRetryNotice] = useState("");
 
   const factoryAddress = getFheAirdropFactoryAddress(chainId) || "0xbE6A3B78B36684fFee48De77d47Bc3393F5Acd4c";
+
+  // Admin ETH balance — create+fund is gas-heavy (~0.045 ETH measured). Warn low.
+  const { data: ethBalance } = useBalance({ address: adminAddress });
+  const LOW_ETH_THRESHOLD = 50_000_000_000_000_000n; // 0.05 ETH in wei
+  const isLowEth = ethBalance !== undefined && ethBalance.value < LOW_ETH_THRESHOLD;
 
   // Gas fee resolution
   const { data: defaultFee } = useFactoryDefaultGasFee();
@@ -171,7 +177,20 @@ export function StepFund({
             {formatTokens(totalAmount)}
           </span>
         </div>
+        <div className="flex justify-between">
+          <span className="text-mute">Your gas balance</span>
+          <span className={"font-mono font-medium " + (isLowEth ? "text-danger" : "text-ink")}>
+            {ethBalance ? `${Number(formatEther(ethBalance.value)).toFixed(4)} ETH` : "—"}
+          </span>
+        </div>
       </div>
+
+      {isLowEth && (
+        <div className="rounded-lg border border-gold/40 bg-gold-tint/40 p-3.5 text-xs text-gold-dim">
+          Low on Sepolia ETH. Creating + funding a campaign costs roughly <span className="font-mono">~0.05 ETH</span> in
+          gas (FHE operations are heavy). Top up before funding, or the transaction may fail with “insufficient funds.”
+        </div>
+      )}
 
       <div className="space-y-4">
         {/* Step 3.1: Approve Operator */}

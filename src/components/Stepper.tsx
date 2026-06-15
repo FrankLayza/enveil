@@ -30,7 +30,10 @@ export function Stepper({
               <Node status={status} n={step.id} />
               <span
                 className={
-                  "mt-2 text-xs font-medium tracking-wide transition-colors duration-200 " +
+                  "mt-2 whitespace-nowrap text-[11px] font-medium tracking-wide transition-colors duration-200 sm:text-xs " +
+                  // On mobile only the active label shows (5 labels overflow a phone);
+                  // all labels show from sm up.
+                  (status === "active" ? "block " : "hidden sm:block ") +
                   (status === "active"
                     ? "text-gold-dim"
                     : status === "done"
