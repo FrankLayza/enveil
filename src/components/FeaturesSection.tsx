@@ -95,10 +95,10 @@ export function FeaturesSection() {
   return (
     <section ref={ref} className="mt-28">
       <div className="mb-10 text-center">
-        <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--color-ink)]">
+        <h2 className="font-display text-3xl font-bold tracking-tight text-ink">
           Privacy by default
         </h2>
-        <p className="mx-auto mt-3 max-w-lg text-[var(--color-mute)]">
+        <p className="mx-auto mt-3 max-w-lg text-mute">
           Every airdrop on DropShield is confidential from creation to claim.
         </p>
       </div>
@@ -118,7 +118,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
 
   return (
     <div
-      className="stagger group relative overflow-hidden rounded-xl border border-[var(--color-edge)] bg-[var(--color-panel)] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-gold)]/40 hover:shadow-lg hover:shadow-[var(--color-gold)]/5"
+      className="stagger group relative overflow-hidden rounded-xl border border-edge bg-panel p-7 transition-all duration-300 hover:-translate-y-1 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/5"
       style={{ animationDelay: `${index * 120}ms` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -133,20 +133,20 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
       />
 
       {/* Animated icon */}
-      <div className="relative mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--color-panel-2)] transition-all duration-300 group-hover:bg-[var(--color-gold)]/10 group-hover:text-[var(--color-gold-dim)]">
+      <div className="relative mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-panel-2 transition-all duration-300 group-hover:bg-gold/10 group-hover:text-gold-dim">
         <AnimatedIcon type={feature.icon} active={hovered} />
       </div>
 
       {/* Title */}
-      <h3 className="font-display text-xl font-semibold tracking-tight text-[var(--color-ink)]">
+      <h3 className="font-display text-xl font-semibold tracking-tight text-ink">
         {feature.title}
       </h3>
 
       {/* Body */}
-      <p className="mt-2 text-sm leading-relaxed text-[var(--color-mute)]">{feature.body}</p>
+      <p className="mt-2 text-sm leading-relaxed text-mute">{feature.body}</p>
 
       {/* Mini demo strip */}
-      <div className="mt-5 rounded-md bg-[var(--color-panel-2)] px-3 py-2.5">
+      <div className="mt-5 rounded-md bg-panel-2 px-3 py-2.5">
         <MiniDemo type={feature.demo} active={hovered} />
       </div>
     </div>
@@ -251,11 +251,11 @@ function EncryptDemo({ active }: { active: boolean }) {
   const scrambled = useScramble("1,250.00 cUSDT", active);
   return (
     <div className="flex items-center justify-between font-mono text-xs">
-      <span className="text-[var(--color-faint)]">allocation</span>
+      <span className="text-faint">allocation</span>
       <span
         className={
           "transition-colors duration-300 " +
-          (active ? "text-[var(--color-gold-dim)] font-medium" : "text-[var(--color-encrypted)]")
+          (active ? "text-gold-dim font-medium" : "text-encrypted")
         }
       >
         {scrambled}
@@ -288,15 +288,15 @@ function VerifyDemo({ active }: { active: boolean }) {
 
   const labels = ["awaiting signature", "verifying…", "checking proof…", "✓ verified"];
   const colors = [
-    "text-[var(--color-faint)]",
-    "text-[var(--color-mute)]",
-    "text-[var(--color-mute)]",
+    "text-faint",
+    "text-mute",
+    "text-mute",
     "text-emerald-600 font-medium",
   ];
 
   return (
     <div className="flex items-center justify-between font-mono text-xs">
-      <span className="text-[var(--color-faint)]">EIP-712</span>
+      <span className="text-faint">EIP-712</span>
       <span className={`transition-colors duration-200 ${colors[step]}`}>{labels[step]}</span>
     </div>
   );
@@ -312,8 +312,8 @@ function ComposeDemo({ active }: { active: boolean }) {
           className={
             "rounded border px-1.5 py-0.5 transition-all duration-300 " +
             (active
-              ? "border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5 text-[var(--color-gold-dim)]"
-              : "border-[var(--color-edge)] text-[var(--color-faint)]")
+              ? "border-gold/30 bg-gold/5 text-gold-dim"
+              : "border-edge text-faint")
           }
           style={{
             transitionDelay: active ? `${i * 80}ms` : "0ms",
@@ -325,7 +325,7 @@ function ComposeDemo({ active }: { active: boolean }) {
       <span
         className={
           "ml-auto transition-opacity duration-300 " +
-          (active ? "text-[var(--color-mute)] opacity-100" : "opacity-0")
+          (active ? "text-mute opacity-100" : "opacity-0")
         }
       >
         →

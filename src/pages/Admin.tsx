@@ -66,12 +66,12 @@ export function Admin() {
     <div className="mx-auto max-w-3xl">
       <header className="mb-8 flex items-baseline justify-between">
         <h1 className="text-xl font-semibold tracking-tight">Campaign wizard</h1>
-        <span className="font-mono text-xs text-[var(--color-faint)]">
+        <span className="font-mono text-xs text-faint">
           step {current} of {STEPS.length}
         </span>
       </header>
 
-      <div className="rounded-2xl border border-[var(--color-edge)] bg-[var(--color-panel)] p-6 sm:p-8">
+      <div className="rounded-2xl border border-edge bg-panel p-6 sm:p-8">
         <div className="mb-8">
           <Stepper steps={STEPS} current={current} />
         </div>

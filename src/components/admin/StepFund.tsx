@@ -48,6 +48,7 @@ export function StepFund({
 
   const [approveTxHash, setApproveTxHash] = useState<`0x${string}` | undefined>(undefined);
   const [errorMsg, setErrorMsg] = useState("");
+  const [retryNotice, setRetryNotice] = useState("");
 
   const factoryAddress = getFheAirdropFactoryAddress(chainId) || "0xbE6A3B78B36684fFee48De77d47Bc3393F5Acd4c";
 
@@ -84,8 +85,17 @@ export function StepFund({
     }
   };
 
+  // The Zama public testnet relayer intermittently times out / fetch-fails on the
+  // ENCRYPT step (30s timeout is hardcoded in the SDK worker). Encryption throws
+  // BEFORE any on-chain submit, so retrying is safe and idempotent.
+  const isTransientRelayerError = (msg: string) =>
+    /timed out|fetch failed|Fetch POST failed|ENCRYPT|NODE_INIT|worker pool|initialize FHE|network|ECONNRESET|ETIMEDOUT/i.test(
+      msg,
+    );
+
   const handleFund = async () => {
     setErrorMsg("");
+    setRetryNotice("");
     if (!isConnected || !adminAddress) {
       setErrorMsg("Please connect your wallet first.");
       return;
@@ -99,28 +109,41 @@ export function StepFund({
       admin: adminAddress,
     };
 
-    try {
-      await fundMutation.mutateAsync(
-        {
+    const ATTEMPTS = 4;
+    for (let i = 1; i <= ATTEMPTS; i++) {
+      try {
+        await fundMutation.mutateAsync({
           token: tokenAddress as `0x${string}`,
           params,
           userSalt,
           deployer: adminAddress,
           gasFee,
           amount: totalAmount,
-        },
-        {
-          onSuccess: () => {
-            onSuccess();
-          },
-          onError: (err: any) => {
-            console.error("Fund failed", err);
-            setErrorMsg(err?.message || "Funding failed.");
-          },
+        });
+        setRetryNotice("");
+        onSuccess();
+        return;
+      } catch (err: any) {
+        const msg =
+          (err?.message ?? String(err)) +
+          " " +
+          (err?.cause?.message ?? "");
+        console.error(`Fund attempt ${i}/${ATTEMPTS} failed`, err);
+        if (isTransientRelayerError(msg) && i < ATTEMPTS) {
+          setRetryNotice(
+            `The Zama relayer is slow right now — retrying (${i}/${ATTEMPTS})…`,
+          );
+          await new Promise((r) => setTimeout(r, 2000 * i));
+          continue;
         }
-      );
-    } catch (err: any) {
-      console.error(err);
+        setRetryNotice("");
+        setErrorMsg(
+          isTransientRelayerError(msg)
+            ? "The Zama testnet relayer is unresponsive after several tries. Please wait a moment and click Fund Campaign again."
+            : err?.message || "Funding failed.",
+        );
+        return;
+      }
     }
   };
 
@@ -129,22 +152,22 @@ export function StepFund({
   return (
     <div className="animate-step-in space-y-6">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight text-[var(--color-ink)]">
+        <h2 className="text-lg font-semibold tracking-tight text-ink">
           Fund the campaign
         </h2>
-        <p className="text-sm text-[var(--color-mute)]">
+        <p className="text-sm text-mute">
           Authorize the factory to transfer the required tokens, then encrypt and deposit them into your campaign pool.
         </p>
       </div>
 
-      <div className="rounded-xl border border-[var(--color-edge)] bg-[var(--color-panel-2)] p-4 space-y-3.5 text-sm">
+      <div className="rounded-xl border border-edge bg-panel-2 p-4 space-y-3.5 text-sm">
         <div className="flex justify-between">
-          <span className="text-[var(--color-mute)]">Campaign clone</span>
-          <span className="font-mono font-medium text-[var(--color-ink)]">{campaignAddress}</span>
+          <span className="text-mute">Campaign clone</span>
+          <span className="font-mono font-medium text-ink">{campaignAddress}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[var(--color-mute)]">Required tokens</span>
-          <span className="font-mono font-semibold text-[var(--color-gold-dim)]">
+          <span className="text-mute">Required tokens</span>
+          <span className="font-mono font-semibold text-gold-dim">
             {formatTokens(totalAmount)}
           </span>
         </div>
@@ -152,11 +175,11 @@ export function StepFund({
 
       <div className="space-y-4">
         {/* Step 3.1: Approve Operator */}
-        <div className={`rounded-xl border p-5 transition-all ${isApproveDone ? "border-[var(--color-edge)] bg-[var(--color-panel)] opacity-60" : "border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5"}`}>
+        <div className={`rounded-xl border p-5 transition-all ${isApproveDone ? "border-edge bg-panel opacity-60" : "border-gold/30 bg-gold/5"}`}>
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="font-semibold text-sm text-[var(--color-ink)]">Step 1: Approve Factory</h3>
-              <p className="text-xs text-[var(--color-mute)] mt-0.5">
+              <h3 className="font-semibold text-sm text-ink">Step 1: Approve Factory</h3>
+              <p className="text-xs text-mute mt-0.5">
                 Authorizes the TokenOps factory to move your confidential tokens (runs setOperator).
               </p>
             </div>
@@ -170,7 +193,7 @@ export function StepFund({
             <button
               onClick={handleApprove}
               disabled={isApprovePending || isApproveConfirming}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--color-iris)] px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-[var(--color-iris-dim)] disabled:opacity-50"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-iris px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-iris-dim disabled:opacity-50"
             >
               {isApprovePending ? "Approve in wallet..." : isApproveConfirming ? "Confirming tx..." : "Approve Factory"}
             </button>
@@ -178,9 +201,9 @@ export function StepFund({
         </div>
 
         {/* Step 3.2: Deposit Funds */}
-        <div className={`rounded-xl border p-5 transition-all ${isApproveDone ? "border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5" : "border-[var(--color-edge)] bg-[var(--color-panel)] opacity-40 pointer-events-none"}`}>
-          <h3 className="font-semibold text-sm text-[var(--color-ink)]">Step 2: Deposit and Encrypt</h3>
-          <p className="text-xs text-[var(--color-mute)] mt-0.5">
+        <div className={`rounded-xl border p-5 transition-all ${isApproveDone ? "border-gold/30 bg-gold/5" : "border-edge bg-panel opacity-40 pointer-events-none"}`}>
+          <h3 className="font-semibold text-sm text-ink">Step 2: Deposit and Encrypt</h3>
+          <p className="text-xs text-mute mt-0.5">
             Encrypts the allocation pool on-chain and deposits it into the campaign clone contract.
           </p>
 
@@ -188,25 +211,36 @@ export function StepFund({
             <button
               onClick={handleFund}
               disabled={fundMutation.isPending}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--color-iris)] px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-[var(--color-iris-dim)] disabled:opacity-50"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-iris px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-iris-dim disabled:opacity-50"
             >
-              {fundMutation.isPending ? "Encrypting & Funding..." : "Fund Campaign"}
+              {retryNotice
+                ? "Retrying encryption…"
+                : fundMutation.isPending
+                  ? "Encrypting & Funding..."
+                  : "Fund Campaign"}
             </button>
           )}
         </div>
       </div>
 
+      {retryNotice && !errorMsg && (
+        <div className="flex items-center gap-2 rounded-lg border border-gold/40 bg-gold-tint/40 p-3.5 text-xs text-gold-dim">
+          <span className="h-3 w-3 shrink-0 animate-spin rounded-full border-2 border-gold-dim/30 border-t-gold-dim" />
+          {retryNotice}
+        </div>
+      )}
+
       {errorMsg && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-[var(--color-danger)]">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-danger">
           {errorMsg}
         </div>
       )}
 
-      <div className="flex items-center justify-between border-t border-[var(--color-edge)] pt-5">
+      <div className="flex items-center justify-between border-t border-edge pt-5">
         <button
           onClick={onBack}
           disabled={isApprovePending || isApproveConfirming || fundMutation.isPending}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-edge-strong)] px-4 py-2.5 text-sm font-medium text-[var(--color-mute)] transition-colors duration-150 hover:text-[var(--color-ink)] disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-edge-strong px-4 py-2.5 text-sm font-medium text-mute transition-colors duration-150 hover:text-ink disabled:opacity-50"
         >
           ← Back
         </button>

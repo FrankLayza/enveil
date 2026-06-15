@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Footer } from "@/components/Footer";
+import { Reveal } from "@/components/Reveal";
 
 const FEATURES = [
   {
@@ -19,61 +20,71 @@ const FEATURES = [
 export function Landing() {
   return (
     <div className="relative">
-      {/* Hero */}
+      {/* Hero — staggered entrance on load */}
       <section className="flex min-h-[68vh] flex-col justify-center py-12">
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-edge)] bg-[var(--color-panel)]/60 px-3 py-1 text-xs font-medium text-[var(--color-mute)] backdrop-blur-sm">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-iris)]" />
-          Zama Developer Program · Season 3
-        </span>
+        <Reveal.Stagger amount={0}>
+          <Reveal.Item>
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-edge bg-panel/60 px-3 py-1 text-xs font-medium text-mute backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              Zama Developer Program · Season 3
+            </span>
+          </Reveal.Item>
 
-        <h1 className="mt-6 max-w-3xl text-balance font-display text-5xl font-extrabold leading-[1.0] tracking-[-0.02em] text-[var(--color-ink)] sm:text-6xl lg:text-7xl">
-          Only you can see your{" "}
-          <span className="relative inline-block whitespace-nowrap text-[var(--color-ink)]">
-            <span
-              aria-hidden
-              className="absolute inset-x-[-0.08em] bottom-[0.1em] h-[0.5em] -rotate-1 rounded-sm bg-[var(--color-gold)]"
-            />
-            <span className="relative">allocation</span>
-          </span>
-          .
-        </h1>
+          <Reveal.Item>
+            <h1 className="mt-6 max-w-3xl text-balance font-display text-5xl font-extrabold leading-none tracking-[-0.02em] text-ink sm:text-6xl lg:text-7xl">
+              Only you can see your{" "}
+              <span className="relative inline-block whitespace-nowrap text-ink">
+                <span
+                  aria-hidden
+                  className="absolute inset-x-[-0.08em] bottom-[0.1em] h-[0.5em] -rotate-1 rounded-sm bg-gold"
+                />
+                <span className="relative">allocation</span>
+              </span>
+              .
+            </h1>
+          </Reveal.Item>
 
-        <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--color-mute)]">
-          DropShield airdrops confidential ERC-7984 tokens with every amount encrypted
-          on-chain. Recipients decrypt and claim only their own — invisible to everyone
-          else, including validators.
-        </p>
+          <Reveal.Item>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-mute">
+              DropShield airdrops confidential ERC-7984 tokens with every amount encrypted
+              on-chain. Recipients decrypt and claim only their own — invisible to everyone
+              else, including validators.
+            </p>
+          </Reveal.Item>
 
-        <div className="mt-9 flex flex-wrap items-center gap-3">
-          <Link
-            to="/admin"
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--color-iris)] px-6 py-3 text-sm font-semibold text-white transition-all duration-150 hover:bg-[var(--color-iris-dim)]"
-          >
-            Create an airdrop
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </Link>
-          <Link
-            to="/claim"
-            className="inline-flex items-center gap-2 rounded-md border border-[var(--color-edge-strong)] bg-[var(--color-panel)]/60 px-6 py-3 text-sm font-semibold text-[var(--color-ink)] backdrop-blur-sm transition-all duration-150 hover:bg-[var(--color-panel-2)]"
-          >
-            Claim my tokens
-          </Link>
-        </div>
+          <Reveal.Item>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-2 rounded-md bg-iris px-6 py-3 text-sm font-semibold text-white transition-all duration-150 hover:bg-iris-dim hover:-translate-y-0.5"
+              >
+                Create an airdrop
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </Link>
+              <Link
+                to="/claim"
+                className="inline-flex items-center gap-2 rounded-md border border-edge-strong bg-panel/60 px-6 py-3 text-sm font-semibold text-ink backdrop-blur-sm transition-all duration-150 hover:bg-panel-2 hover:-translate-y-0.5"
+              >
+                Claim my tokens
+              </Link>
+            </div>
+          </Reveal.Item>
+        </Reveal.Stagger>
       </section>
 
-      {/* Features — tight row, hairline separators */}
-      <section className="mt-12 grid gap-px overflow-hidden rounded-lg border border-[var(--color-edge)] bg-[var(--color-edge)] sm:grid-cols-3">
+      {/* Features — stagger in on scroll */}
+      <Reveal.Stagger className="mt-12 grid gap-px overflow-hidden rounded-lg border border-edge bg-edge sm:grid-cols-3">
         {FEATURES.map((f) => (
-          <div key={f.title} className="bg-[var(--color-panel)] p-7">
-            <h3 className="font-display text-lg font-semibold tracking-tight text-[var(--color-ink)]">
+          <Reveal.Item key={f.title} className="bg-panel p-7">
+            <h3 className="font-display text-lg font-semibold tracking-tight text-ink">
               {f.title}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--color-mute)]">{f.body}</p>
-          </div>
+            <p className="mt-2 text-sm leading-relaxed text-mute">{f.body}</p>
+          </Reveal.Item>
         ))}
-      </section>
+      </Reveal.Stagger>
 
       <Footer />
     </div>

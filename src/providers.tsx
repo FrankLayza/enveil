@@ -67,7 +67,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
-          theme={lightTheme({ accentColor: "#0f0f0f", borderRadius: "medium" })}
+          theme={lightTheme({ accentColor: "#1a1a18", borderRadius: "large" })}
           modalSize="compact"
         >
           <ZamaSigned>{children}</ZamaSigned>

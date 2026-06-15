@@ -74,8 +74,8 @@ export function StepRecipients({
         className={
           "flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 text-center transition-colors duration-150 " +
           (dragging
-            ? "border-[var(--color-gold)] bg-[var(--color-gold)]/5"
-            : "border-[var(--color-edge-strong)] hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-panel-2)]")
+            ? "border-gold bg-gold/5"
+            : "border-edge-strong hover:border-gold/60 hover:bg-panel-2")
         }
       >
         <input
@@ -90,31 +90,31 @@ export function StepRecipients({
           }}
         />
         <UploadIcon />
-        <p className="mt-3 text-lg font-medium text-[var(--color-ink)]">Drop recipients.csv here</p>
-        <p className="mt-1 text-sm text-[var(--color-mute)]">
-          Columns: <span className="font-mono text-[var(--color-faint)]">address, amount</span> — or
+        <p className="mt-3 text-lg font-medium text-ink">Drop recipients.csv here</p>
+        <p className="mt-1 text-sm text-mute">
+          Columns: <span className="font-mono text-faint">address, amount</span> — or
           add rows manually below
         </p>
       </label>
 
       {/* Table */}
-      <div className="mt-6 overflow-hidden rounded-xl border border-[var(--color-edge)] bg-[var(--color-panel)]">
-        <div className="grid grid-cols-[1fr_auto_40px] items-center gap-3 border-b border-[var(--color-edge)] bg-[var(--color-panel-2)] px-4 py-2.5">
-          <span className="text-xs font-medium uppercase tracking-wider text-[var(--color-faint)]">
+      <div className="mt-6 overflow-hidden rounded-xl border border-edge bg-panel">
+        <div className="grid grid-cols-[1fr_auto_40px] items-center gap-3 border-b border-edge bg-panel-2 px-4 py-2.5">
+          <span className="text-xs font-medium uppercase tracking-wider text-faint">
             Wallet address
           </span>
-          <span className="text-right text-xs font-medium uppercase tracking-wider text-[var(--color-faint)]">
+          <span className="text-right text-xs font-medium uppercase tracking-wider text-faint">
             Amount
           </span>
           <span />
         </div>
 
         {recipients.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-[var(--color-faint)]">
+          <div className="px-4 py-8 text-center text-sm text-faint">
             No recipients yet. Drop a CSV above or{" "}
             <button
               onClick={addRow}
-              className="font-medium text-[var(--color-iris)] underline-offset-2 hover:underline"
+              className="font-medium text-iris underline-offset-2 hover:underline"
             >
               add the first row
             </button>
@@ -128,36 +128,46 @@ export function StepRecipients({
             return (
               <div
                 key={r.id}
-                className="grid grid-cols-[1fr_auto_40px] items-center gap-3 border-b border-[var(--color-edge)] px-4 py-2 last:border-b-0"
+                className="grid grid-cols-[1fr_auto_40px] items-start gap-3 border-b border-edge px-4 py-3 last:border-b-0"
               >
                 <div>
                   <input
                     value={r.address}
                     onChange={(e) => editRow(r.id, "address", e.target.value)}
-                    placeholder="0x…"
+                    placeholder="0x recipient wallet address"
                     spellCheck={false}
-                    className="w-full bg-transparent font-mono text-sm text-[var(--color-ink)] placeholder:text-[var(--color-faint)] focus:outline-none"
+                    className={
+                      "w-full rounded-md border bg-panel px-3 py-2 font-mono text-sm text-ink placeholder:text-faint transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gold/40 " +
+                      (addrIssue
+                        ? "border-danger/60 focus:border-danger"
+                        : "border-edge-strong focus:border-ink")
+                    }
                   />
                   {addrIssue && (
-                    <span className="text-xs text-[var(--color-danger)]">{addrIssue.message}</span>
+                    <span className="mt-1 block text-xs text-danger">{addrIssue.message}</span>
                   )}
                 </div>
                 <div className="text-right">
                   <input
                     value={r.amount}
                     onChange={(e) => editRow(r.id, "amount", e.target.value)}
-                    placeholder="0"
+                    placeholder="Amount"
                     inputMode="decimal"
-                    className="w-28 bg-transparent text-right font-mono text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-faint)] focus:outline-none"
+                    className={
+                      "w-32 rounded-md border bg-panel px-3 py-2 text-right font-mono text-sm font-medium text-ink placeholder:text-faint transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gold/40 " +
+                      (amtIssue
+                        ? "border-danger/60 focus:border-danger"
+                        : "border-edge-strong focus:border-ink")
+                    }
                   />
                   {amtIssue && (
-                    <span className="block text-xs text-[var(--color-danger)]">{amtIssue.message}</span>
+                    <span className="mt-1 block text-xs text-danger">{amtIssue.message}</span>
                   )}
                 </div>
                 <button
                   onClick={() => removeRow(r.id)}
                   aria-label="Remove recipient"
-                  className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--color-faint)] transition-colors duration-150 hover:bg-[var(--color-danger)]/10 hover:text-[var(--color-danger)]"
+                  className="mt-1 flex h-9 w-9 items-center justify-center rounded-md text-faint transition-colors duration-150 hover:bg-danger/10 hover:text-danger"
                 >
                   <TrashIcon />
                 </button>
@@ -171,24 +181,24 @@ export function StepRecipients({
       {recipients.length > 0 && (
         <button
           onClick={addRow}
-          className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-mute)] transition-colors duration-150 hover:text-[var(--color-ink)]"
+          className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-mute transition-colors duration-150 hover:text-ink"
         >
           <PlusIcon /> Add row
         </button>
       )}
 
       {/* Footer: total + advance */}
-      <div className="mt-6 flex items-center justify-between border-t border-[var(--color-edge)] pt-5">
-        <p className="text-sm text-[var(--color-mute)]">
-          <span className="font-mono font-medium text-[var(--color-ink)]">{validCount}</span>{" "}
+      <div className="mt-6 flex items-center justify-between border-t border-edge pt-5">
+        <p className="text-sm text-mute">
+          <span className="font-mono font-medium text-ink">{validCount}</span>{" "}
           recipient{validCount === 1 ? "" : "s"}
-          <span className="mx-2 text-[var(--color-faint)]">·</span>
-          <span className="font-mono font-medium text-[var(--color-gold-dim)]">
+          <span className="mx-2 text-faint">·</span>
+          <span className="font-mono font-medium text-gold-dim">
             {formatTokens(total)}
           </span>{" "}
           tokens total
           {validCount < recipients.length && (
-            <span className="ml-2 text-[var(--color-danger)]">
+            <span className="ml-2 text-danger">
               · {recipients.length - validCount} need fixing
             </span>
           )}
@@ -196,7 +206,7 @@ export function StepRecipients({
         <button
           onClick={onNext}
           disabled={!canAdvance}
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-iris)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-[var(--color-iris-dim)] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-lg bg-iris px-5 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-iris-dim disabled:cursor-not-allowed disabled:opacity-40"
         >
           Next: create campaign <ArrowIcon />
         </button>

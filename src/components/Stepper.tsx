@@ -32,10 +32,10 @@ export function Stepper({
                 className={
                   "mt-2 text-xs font-medium tracking-wide transition-colors duration-200 " +
                   (status === "active"
-                    ? "text-[var(--color-gold-dim)]"
+                    ? "text-gold-dim"
                     : status === "done"
-                      ? "text-[var(--color-ink)]"
-                      : "text-[var(--color-faint)]")
+                      ? "text-ink"
+                      : "text-faint")
                 }
               >
                 {step.label}
@@ -43,9 +43,9 @@ export function Stepper({
             </div>
 
             {!isLast && (
-              <div className="relative mt-[15px] h-px flex-1 bg-[var(--color-edge)]">
+              <div className="relative mt-[15px] h-px flex-1 bg-edge">
                 <div
-                  className="absolute inset-0 origin-left bg-[var(--color-iris)] transition-transform duration-500 ease-out"
+                  className="absolute inset-0 origin-left bg-iris transition-transform duration-500 ease-out"
                   style={{ transform: `scaleX(${connectorFilled ? 1 : 0})` }}
                 />
               </div>
@@ -62,7 +62,7 @@ function Node({ status, n }: { status: "done" | "active" | "todo"; n: number }) 
     "relative flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-200";
   if (status === "done") {
     return (
-      <span className={base + " border-[var(--color-iris)] bg-[var(--color-iris)] text-white"}>
+      <span className={base + " border-iris bg-iris text-white"}>
         <CheckIcon />
       </span>
     );
@@ -72,16 +72,16 @@ function Node({ status, n }: { status: "done" | "active" | "todo"; n: number }) 
       <span
         className={
           base +
-          " border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold-dim)]"
+          " border-gold bg-gold/10 text-gold-dim"
         }
       >
-        <span className="absolute inset-0 animate-ping rounded-full bg-[var(--color-gold)]/20" />
+        <span className="absolute inset-0 animate-ping rounded-full bg-gold/20" />
         <span className="relative">{n}</span>
       </span>
     );
   }
   return (
-    <span className={base + " border-[var(--color-edge-strong)] text-[var(--color-faint)]"}>
+    <span className={base + " border-edge-strong text-faint"}>
       {n}
     </span>
   );

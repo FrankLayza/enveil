@@ -126,41 +126,41 @@ export function StepAuthorize({
   return (
     <div className="animate-step-in space-y-6">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight text-[var(--color-ink)]">
+        <h2 className="text-lg font-semibold tracking-tight text-ink">
           Authorize recipients
         </h2>
-        <p className="text-sm text-[var(--color-mute)]">
+        <p className="text-sm text-mute">
           Generate an encrypted allocation handle bound to each recipient's wallet address, and sign the EIP-712 authorization off-chain.
         </p>
       </div>
 
       {/* Recipient Status Table */}
-      <div className="max-h-72 overflow-y-auto border border-[var(--color-edge)] rounded-xl bg-[var(--color-panel)]">
+      <div className="max-h-72 overflow-y-auto border border-edge rounded-xl bg-panel">
         <table className="w-full text-left text-sm">
-          <thead className="bg-[var(--color-panel-2)] text-xs font-medium uppercase tracking-wider text-[var(--color-faint)]">
+          <thead className="bg-panel-2 text-xs font-medium uppercase tracking-wider text-faint">
             <tr>
               <th className="px-4 py-2.5">Address</th>
               <th className="px-4 py-2.5 text-right">Amount</th>
               <th className="px-4 py-2.5 text-right">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--color-edge)] font-mono">
+          <tbody className="divide-y divide-edge font-mono">
             {recipients.map((r) => {
               const status = statuses[r.id];
               return (
-                <tr key={r.id} className="hover:bg-[var(--color-panel-2)]/50">
-                  <td className="px-4 py-2.5 text-[var(--color-ink)]">
+                <tr key={r.id} className="hover:bg-panel-2/50">
+                  <td className="px-4 py-2.5 text-ink">
                     {shortAddress(r.address)}
                   </td>
-                  <td className="px-4 py-2.5 text-right text-[var(--color-ink)]">
+                  <td className="px-4 py-2.5 text-right text-ink">
                     {r.amount}
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     {status === "pending" && (
-                      <span className="text-[var(--color-faint)]">Pending</span>
+                      <span className="text-faint">Pending</span>
                     )}
                     {status === "encrypting" && (
-                      <span className="text-[var(--color-gold-dim)] font-medium animate-pulse">
+                      <span className="text-gold-dim font-medium animate-pulse">
                         Encrypting...
                       </span>
                     )}
@@ -173,7 +173,7 @@ export function StepAuthorize({
                       <span className="text-emerald-600 font-medium">✓ Ready</span>
                     )}
                     {status === "failed" && (
-                      <span className="text-[var(--color-danger)] font-medium">✗ Failed</span>
+                      <span className="text-danger font-medium">✗ Failed</span>
                     )}
                   </td>
                 </tr>
@@ -184,22 +184,22 @@ export function StepAuthorize({
       </div>
 
       {progressText && (
-        <p className="text-center text-sm font-medium text-[var(--color-gold-dim)]">
+        <p className="text-center text-sm font-medium text-gold-dim">
           {progressText}
         </p>
       )}
 
       {errorMsg && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-[var(--color-danger)]">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-danger">
           {errorMsg}
         </div>
       )}
 
-      <div className="flex items-center justify-between border-t border-[var(--color-edge)] pt-5">
+      <div className="flex items-center justify-between border-t border-edge pt-5">
         <button
           onClick={onBack}
           disabled={isRunning}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-edge-strong)] px-4 py-2.5 text-sm font-medium text-[var(--color-mute)] transition-colors duration-150 hover:text-[var(--color-ink)] disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-edge-strong px-4 py-2.5 text-sm font-medium text-mute transition-colors duration-150 hover:text-ink disabled:opacity-50"
         >
           ← Back
         </button>
@@ -208,7 +208,7 @@ export function StepAuthorize({
           <button
             onClick={startAuthorizations}
             disabled={isRunning || !isConnected}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-iris)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-[var(--color-iris-dim)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-lg bg-iris px-5 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-iris-dim disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isRunning
               ? "Processing..."

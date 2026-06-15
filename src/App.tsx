@@ -11,15 +11,15 @@ export function App() {
 
   return (
     <ReactLenis root>
-      <div className="min-h-full bg-[var(--color-bg)] text-[var(--color-ink)] noise-overlay mesh-gradient-bg">
+      <div className="min-h-full bg-bg text-ink noise-overlay mesh-gradient-bg">
         {/* ── Floating pill navbar ────────────────────────────────────── */}
         <header className="sticky top-0 z-20 px-6 pt-4 pb-2">
           <div className="mx-auto flex max-w-5xl items-center justify-between">
             {/* Left pill: logo + nav links */}
-            <div className="flex items-center gap-1 rounded-full border border-[var(--color-edge)]/40 bg-[var(--color-panel)]/85 backdrop-blur-md px-2 py-1.5 shadow-lg shadow-black/10">
+            <div className="flex items-center gap-1 rounded-full border border-edge/40 bg-panel/85 backdrop-blur-md px-2 py-1.5 shadow-lg shadow-black/10">
               <Link
                 to="/"
-                className="flex items-center gap-2 rounded-full px-3 py-1.5 font-display font-semibold tracking-tight transition-colors duration-150 hover:bg-[var(--color-panel-2)]/60"
+                className="flex items-center gap-2 rounded-full px-3 py-1.5 font-display font-semibold tracking-tight transition-colors duration-150 hover:bg-panel-2/60"
               >
                 <Shield size={18} />
                 <span className="font-wordmark text-base lowercase tracking-wide">
@@ -27,7 +27,7 @@ export function App() {
                 </span>
               </Link>
 
-              <span className="mx-1 h-4 w-px bg-[var(--color-edge)]/55" aria-hidden />
+              <span className="mx-1 h-4 w-px bg-edge/55" aria-hidden />
 
               <NavPill to="/admin" active={pathname.startsWith("/admin")}>
                 Create
@@ -75,8 +75,8 @@ function NavPill({
       className={
         "rounded-full px-3.5 py-1.5 text-xs font-medium uppercase tracking-wider transition-all duration-150 " +
         (active
-          ? "bg-[var(--color-iris)] text-white shadow-sm"
-          : "text-[var(--color-mute)] hover:bg-[var(--color-panel-2)]/50 hover:text-[var(--color-ink)]")
+          ? "bg-iris text-white shadow-sm"
+          : "text-mute hover:bg-panel-2/50 hover:text-ink")
       }
     >
       {children}

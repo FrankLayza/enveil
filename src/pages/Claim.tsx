@@ -7,6 +7,7 @@ import {
   useAirdropIsSignatureClaimed,
 } from "@tokenops/sdk/fhe-airdrop/react";
 import { formatTokens, shortAddress } from "@/lib/recipients";
+import { ConfidentialBalance } from "@/components/ConfidentialBalance";
 
 export function Claim() {
   const { address: connectedAddress, isConnected } = useAccount();
@@ -213,10 +214,10 @@ export function Claim() {
   return (
     <div className="mx-auto max-w-lg space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--color-ink)]">
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
           Claim your tokens
         </h1>
-        <p className="text-sm text-[var(--color-mute)] mt-1">
+        <p className="text-sm text-mute mt-1">
           Import your signed authorization payload, decrypt to verify the amount privately, and claim.
         </p>
       </div>
@@ -234,8 +235,8 @@ export function Claim() {
             className={
               "flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 text-center transition-colors duration-155 " +
               (dragging
-                ? "border-[var(--color-gold)] bg-[var(--color-gold)]/5"
-                : "border-[var(--color-edge-strong)] hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-panel-2)]")
+                ? "border-gold bg-gold/5"
+                : "border-edge-strong hover:border-gold/60 hover:bg-panel-2")
             }
           >
             <svg
@@ -249,10 +250,10 @@ export function Claim() {
             >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
             </svg>
-            <p className="text-base font-semibold text-[var(--color-ink)]">
+            <p className="text-base font-semibold text-ink">
               Drop your claim JSON file here
             </p>
-            <p className="text-xs text-[var(--color-mute)] mt-1">
+            <p className="text-xs text-mute mt-1">
               or click to upload the JSON payload
             </p>
             <input
@@ -275,12 +276,12 @@ export function Claim() {
             />
           </label>
 
-          <div className="text-center text-xs text-[var(--color-faint)]">— OR —</div>
+          <div className="text-center text-xs text-faint">— OR —</div>
 
           {!showJsonInput ? (
             <button
               onClick={() => setShowJsonInput(true)}
-              className="w-full py-2.5 rounded-lg border border-[var(--color-edge-strong)] text-sm font-semibold text-[var(--color-mute)] hover:bg-[var(--color-panel-2)]/60 hover:text-[var(--color-ink)]"
+              className="w-full py-2.5 rounded-lg border border-edge-strong text-sm font-semibold text-mute hover:bg-panel-2/60 hover:text-ink"
             >
               Paste JSON payload text
             </button>
@@ -290,18 +291,18 @@ export function Claim() {
                 value={pastedJson}
                 onChange={(e) => setPastedJson(e.target.value)}
                 placeholder='Paste {"campaignAddress": "0x...", "authorizations": [...] } here'
-                className="w-full h-32 rounded-lg border border-[var(--color-edge-strong)] bg-transparent p-3 text-xs font-mono focus:outline-none"
+                className="w-full h-32 rounded-lg border border-edge-strong bg-transparent p-3 text-xs font-mono focus:outline-none"
               />
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowJsonInput(false)}
-                  className="flex-1 py-2 rounded-lg border border-[var(--color-edge-strong)] text-xs font-semibold text-[var(--color-mute)] hover:bg-[var(--color-panel-2)]/50"
+                  className="flex-1 py-2 rounded-lg border border-edge-strong text-xs font-semibold text-mute hover:bg-panel-2/50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handlePasteSubmit}
-                  className="flex-1 py-2 rounded-lg bg-[var(--color-iris)] text-xs font-semibold text-white hover:bg-[var(--color-iris-dim)]"
+                  className="flex-1 py-2 rounded-lg bg-iris text-xs font-semibold text-white hover:bg-iris-dim"
                 >
                   Import JSON
                 </button>
@@ -312,9 +313,9 @@ export function Claim() {
       ) : (
         <div className="space-y-6 animate-step-in">
           {/* Loaded details */}
-          <div className="rounded-xl border border-[var(--color-edge)] bg-[var(--color-panel)] p-5 space-y-4">
+          <div className="rounded-xl border border-edge bg-panel p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-[var(--color-ink)]">Airdrop Details</span>
+              <span className="text-sm font-semibold text-ink">Airdrop Details</span>
               <button
                 onClick={() => {
                   setCampaignAddress("");
@@ -326,28 +327,28 @@ export function Claim() {
                   setDecryptedAmount(null);
                   setRevealHandle("");
                 }}
-                className="text-xs font-semibold text-[var(--color-danger)] hover:underline"
+                className="text-xs font-semibold text-danger hover:underline"
               >
                 Clear / Import another
               </button>
             </div>
 
-            <div className="divide-y divide-[var(--color-edge)] text-sm">
+            <div className="divide-y divide-edge text-sm">
               <div className="flex justify-between py-2">
-                <span className="text-[var(--color-mute)]">Campaign</span>
-                <span className="font-mono text-xs text-[var(--color-ink)]">
+                <span className="text-mute">Campaign</span>
+                <span className="font-mono text-xs text-ink">
                   {shortAddress(campaignAddress)}
                 </span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="text-[var(--color-mute)]">Recipient</span>
-                <span className="font-mono text-xs text-[var(--color-ink)]">
+                <span className="text-mute">Recipient</span>
+                <span className="font-mono text-xs text-ink">
                   {shortAddress(recipientAddress)}
                 </span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="text-[var(--color-mute)]">Expected Amount</span>
-                <span className="font-mono font-medium text-[var(--color-ink)]">
+                <span className="text-mute">Expected Amount</span>
+                <span className="font-mono font-medium text-ink">
                   {plaintextAmount} tokens
                 </span>
               </div>
@@ -369,13 +370,13 @@ export function Claim() {
           </div>
 
           {/* Verification & Claim actions */}
-          <div className="rounded-2xl border border-[var(--color-edge)] bg-[var(--color-panel)] p-6 space-y-5">
+          <div className="rounded-2xl border border-edge bg-panel p-6 space-y-5">
             {!isConnected ? (
-              <div className="text-center py-6 text-sm text-[var(--color-mute)]">
+              <div className="text-center py-6 text-sm text-mute">
                 Connect your wallet to check eligibility and claim.
               </div>
             ) : addressMismatch ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-xs text-[var(--color-danger)] space-y-2">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-xs text-danger space-y-2">
                 <p className="font-semibold">Recipient address mismatch</p>
                 <p>
                   Your connected address ({shortAddress(connectedAddress)}) does not match the
@@ -389,10 +390,10 @@ export function Claim() {
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
                 </span>
-                <h3 className="font-semibold text-base text-[var(--color-ink)]">
+                <h3 className="font-semibold text-base text-ink">
                   Allocation already claimed
                 </h3>
-                <p className="text-xs text-[var(--color-mute)]">
+                <p className="text-xs text-mute">
                   The tokens for this signature have already been claimed.
                 </p>
               </div>
@@ -401,16 +402,16 @@ export function Claim() {
                 {/* Reveal & Decrypt */}
                 {decryptedAmount === null && (
                   <div className="space-y-2.5">
-                    <h3 className="text-sm font-semibold text-[var(--color-ink)]">
+                    <h3 className="text-sm font-semibold text-ink">
                       1. Cryptographically Verify Amount
                     </h3>
-                    <p className="text-xs text-[var(--color-mute)]">
+                    <p className="text-xs text-mute">
                       Triggers a transaction to authorize decyption of your FHE ciphertext. You then sign a relayer request to decrypt the amount locally.
                     </p>
                     <button
                       onClick={handleReveal}
                       disabled={isRevealing}
-                      className="w-full rounded-lg border border-[var(--color-gold)]/40 bg-[var(--color-gold)]/5 py-2.5 text-sm font-semibold text-[var(--color-gold-dim)] transition-all hover:bg-[var(--color-gold)]/10"
+                      className="w-full rounded-lg border border-gold/40 bg-gold/5 py-2.5 text-sm font-semibold text-gold-dim transition-all hover:bg-gold/10"
                     >
                       {isRevealing
                         ? "Revealing and Decrypting FHE..."
@@ -420,17 +421,17 @@ export function Claim() {
                 )}
 
                 {/* Claim */}
-                <div className="space-y-2.5 pt-3 border-t border-[var(--color-edge)]">
-                  <h3 className="text-sm font-semibold text-[var(--color-ink)]">
+                <div className="space-y-2.5 pt-3 border-t border-edge">
+                  <h3 className="text-sm font-semibold text-ink">
                     {decryptedAmount !== null ? "Claim Tokens" : "2. Claim Tokens"}
                   </h3>
-                  <p className="text-xs text-[var(--color-mute)]">
+                  <p className="text-xs text-mute">
                     Consumes your claim signature and transfers the encrypted tokens directly to your wallet.
                   </p>
                   <button
                     onClick={handleClaim}
                     disabled={claimMutation.isPending}
-                    className="w-full rounded-lg bg-[var(--color-iris)] py-2.5 text-sm font-semibold text-white transition-all hover:bg-[var(--color-iris-dim)] disabled:opacity-50"
+                    className="w-full rounded-lg bg-iris py-2.5 text-sm font-semibold text-white transition-all hover:bg-iris-dim disabled:opacity-50"
                   >
                     {claimMutation.isPending ? "Claiming..." : "Claim Allocation"}
                   </button>
@@ -442,7 +443,7 @@ export function Claim() {
       )}
 
       {errorMsg && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-[var(--color-danger)]">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-danger">
           {errorMsg}
         </div>
       )}
@@ -450,6 +451,15 @@ export function Claim() {
       {successMsg && (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-800">
           {successMsg}
+        </div>
+      )}
+
+      {/* Balance is decoupled from the claim flow — a recipient can check their
+          confidential balance any time their wallet is connected, with no payload.
+          A confidential balance can't show in any wallet; you decrypt it here. */}
+      {isConnected && (
+        <div className="border-t border-edge pt-6">
+          <ConfidentialBalance />
         </div>
       )}
     </div>

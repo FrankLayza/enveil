@@ -68,29 +68,29 @@ export function StepDeliver({
             <path d="M20 6 9 17l-5-5" />
           </svg>
         </span>
-        <h2 className="text-xl font-semibold tracking-tight text-[var(--color-ink)]">
+        <h2 className="text-xl font-semibold tracking-tight text-ink">
           Airdrop Campaign Live!
         </h2>
-        <p className="text-sm text-[var(--color-mute)] mt-1">
+        <p className="text-sm text-mute mt-1">
           Your campaign clone has been deployed, funded, and recipient payloads are authorized.
         </p>
       </div>
 
-      <div className="rounded-xl border border-[var(--color-edge)] bg-[var(--color-panel-2)] p-5 space-y-3.5 text-sm">
+      <div className="rounded-xl border border-edge bg-panel-2 p-5 space-y-3.5 text-sm">
         <div className="flex justify-between">
-          <span className="text-[var(--color-mute)]">Airdrop Address</span>
-          <span className="font-mono font-medium text-[var(--color-ink)]">{campaignAddress}</span>
+          <span className="text-mute">Airdrop Address</span>
+          <span className="font-mono font-medium text-ink">{campaignAddress}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[var(--color-mute)]">Total Recipients</span>
-          <span className="font-mono font-medium text-[var(--color-ink)]">{authorizations.length}</span>
+          <span className="text-mute">Total Recipients</span>
+          <span className="font-mono font-medium text-ink">{authorizations.length}</span>
         </div>
       </div>
 
       <div className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-[var(--color-ink)]">Deliver allocations</h3>
-          <p className="text-xs text-[var(--color-mute)] mt-0.5">
+          <h3 className="text-sm font-semibold text-ink">Deliver allocations</h3>
+          <p className="text-xs text-mute mt-0.5">
             Amounts are private and never go on-chain. Share the signed EIP-712 claims with your recipients.
           </p>
         </div>
@@ -98,35 +98,35 @@ export function StepDeliver({
         <div className="flex gap-3">
           <button
             onClick={handleDownloadJson}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-iris)] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[var(--color-iris-dim)]"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-iris px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-iris-dim"
           >
             <DownloadIcon /> Download JSON Payload
           </button>
         </div>
 
         {/* Links list */}
-        <div className="border border-[var(--color-edge)] rounded-xl bg-[var(--color-panel)] max-h-60 overflow-y-auto">
+        <div className="border border-edge rounded-xl bg-panel max-h-60 overflow-y-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[var(--color-panel-2)] text-xs font-medium uppercase tracking-wider text-[var(--color-faint)]">
+            <thead className="bg-panel-2 text-xs font-medium uppercase tracking-wider text-faint">
               <tr>
                 <th className="px-4 py-2.5">Recipient</th>
                 <th className="px-4 py-2.5 text-right">Amount</th>
                 <th className="px-4 py-2.5 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--color-edge)] font-mono">
+            <tbody className="divide-y divide-edge font-mono">
               {authorizations.map((auth, idx) => (
-                <tr key={auth.address} className="hover:bg-[var(--color-panel-2)]/50">
-                  <td className="px-4 py-2.5 text-[var(--color-ink)]">
+                <tr key={auth.address} className="hover:bg-panel-2/50">
+                  <td className="px-4 py-2.5 text-ink">
                     {shortAddress(auth.address)}
                   </td>
-                  <td className="px-4 py-2.5 text-right text-[var(--color-ink)]">
+                  <td className="px-4 py-2.5 text-right text-ink">
                     {auth.amount}
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     <button
                       onClick={() => handleCopyLink(auth, idx)}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-iris)] hover:underline"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-iris hover:underline"
                     >
                       {copiedIndex === idx ? "Copied!" : "Copy link"}
                     </button>
@@ -138,10 +138,10 @@ export function StepDeliver({
         </div>
       </div>
 
-      <div className="flex items-center justify-center border-t border-[var(--color-edge)] pt-5">
+      <div className="flex items-center justify-center border-t border-edge pt-5">
         <button
           onClick={onReset}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-edge-strong)] px-6 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition-colors duration-150 hover:bg-[var(--color-panel-2)]"
+          className="inline-flex items-center gap-2 rounded-lg border border-edge-strong px-6 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-panel-2"
         >
           Create another campaign
         </button>

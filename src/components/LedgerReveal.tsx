@@ -64,55 +64,55 @@ export function LedgerReveal() {
   return (
     <div className="w-full max-w-md">
       <div
-        className="overflow-hidden rounded-xl border border-[var(--color-edge)] bg-[var(--color-panel)]"
+        className="overflow-hidden rounded-xl border border-edge bg-panel"
         style={{ boxShadow: "0 8px 30px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04)" }}
       >
         {/* header */}
-        <div className="flex items-center justify-between border-b border-[var(--color-edge)] px-5 py-3">
-          <span className="font-mono text-xs tracking-wide text-[var(--color-mute)]">
+        <div className="flex items-center justify-between border-b border-edge px-5 py-3">
+          <span className="font-mono text-xs tracking-wide text-mute">
             Airdrop ledger · Sepolia
           </span>
-          <span className="inline-flex items-center gap-1.5 font-mono text-xs text-[var(--color-faint)]">
+          <span className="inline-flex items-center gap-1.5 font-mono text-xs text-faint">
             <LockIcon /> FHE
           </span>
         </div>
 
         {/* rows */}
-        <div className="divide-y divide-[var(--color-edge)]">
+        <div className="divide-y divide-edge">
           {ROWS.map((row) => {
             if (row.you) {
               return (
                 <div
                   key={row.addr}
-                  className="relative flex items-center justify-between bg-[var(--color-gold)]/[0.06] px-5 py-3"
+                  className="relative flex items-center justify-between bg-gold/[0.06] px-5 py-3"
                 >
-                  <span className="absolute inset-y-0 left-0 w-[3px] bg-[var(--color-gold)]" />
-                  <span className="font-mono text-sm text-[var(--color-ink)]">{row.addr}</span>
+                  <span className="absolute inset-y-0 left-0 w-[3px] bg-gold" />
+                  <span className="font-mono text-sm text-ink">{row.addr}</span>
                   <span className="flex items-baseline gap-1.5">
                     <span
                       key={you.revealed ? "r" : "e"}
                       className={
                         "font-mono text-sm font-medium tabular-nums " +
                         (you.revealed
-                          ? "animate-reveal text-[var(--color-gold-dim)]"
-                          : "text-[var(--color-encrypted)]")
+                          ? "animate-reveal text-gold-dim"
+                          : "text-encrypted")
                       }
                     >
                       {you.text}
                     </span>
-                    <span className="font-mono text-xs text-[var(--color-mute)]">cUSDT</span>
+                    <span className="font-mono text-xs text-mute">cUSDT</span>
                   </span>
                 </div>
               );
             }
             return (
               <div key={row.addr} className="flex items-center justify-between px-5 py-3">
-                <span className="font-mono text-sm text-[var(--color-mute)]">{row.addr}</span>
+                <span className="font-mono text-sm text-mute">{row.addr}</span>
                 <span className="flex items-baseline gap-1.5">
-                  <span className="select-none font-mono text-sm tabular-nums text-[var(--color-encrypted)]">
+                  <span className="select-none font-mono text-sm tabular-nums text-encrypted">
                     {cipher(6, row.seed, tick)}
                   </span>
-                  <span className="font-mono text-xs text-[var(--color-faint)]">cUSDT</span>
+                  <span className="font-mono text-xs text-faint">cUSDT</span>
                 </span>
               </div>
             );
@@ -120,10 +120,10 @@ export function LedgerReveal() {
         </div>
 
         {/* footer */}
-        <div className="border-t border-[var(--color-edge)] px-5 py-3">
-          <p className="text-xs text-[var(--color-mute)]">
+        <div className="border-t border-edge px-5 py-3">
+          <p className="text-xs text-mute">
             Amounts are encrypted on-chain.{" "}
-            <span className="text-[var(--color-gold-dim)]">Only your row is yours.</span>
+            <span className="text-gold-dim">Only your row is yours.</span>
           </p>
         </div>
       </div>
