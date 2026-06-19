@@ -22,12 +22,16 @@ export function StepRecipients({
   setRecipients,
   campaignType,
   setCampaignType,
+  campaignName,
+  setCampaignName,
   onNext,
 }: {
   recipients: Recipient[];
   setRecipients: (r: Recipient[]) => void;
   campaignType: CampaignType;
   setCampaignType: (t: CampaignType) => void;
+  campaignName: string;
+  setCampaignName: (v: string) => void;
   onNext: () => void;
 }) {
   const noun = recipientNoun(campaignType);
@@ -72,6 +76,19 @@ export function StepRecipients({
 
   return (
     <div className="animate-step-in">
+      {/* Campaign name — off-chain label shown on the dashboard. */}
+      <div className="mb-6">
+        <label className="block text-xs font-medium uppercase tracking-wider text-faint mb-1.5">
+          Campaign name <span className="normal-case text-faint/70">(optional)</span>
+        </label>
+        <input
+          value={campaignName}
+          onChange={(e) => setCampaignName(e.target.value)}
+          placeholder="e.g. Q2 Contributor Payroll"
+          className="w-full rounded-lg border border-edge-strong bg-transparent px-3 py-2 text-sm text-ink placeholder:text-faint transition-colors duration-150 focus:border-ink focus:outline-none focus:ring-2 focus:ring-violet/30"
+        />
+      </div>
+
       {/* Campaign type — display-only framing for the whole wizard. */}
       <div className="mb-6">
         <CampaignTypeSelector value={campaignType} onChange={setCampaignType} />

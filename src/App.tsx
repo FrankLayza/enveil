@@ -2,7 +2,9 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { ReactLenis } from "lenis/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Landing } from "@/pages/Landing";
-import { Admin } from "@/pages/Admin";
+import { Dashboard } from "@/pages/Dashboard";
+import { CampaignWizard } from "@/pages/CampaignWizard";
+import { CampaignDetail } from "@/pages/CampaignDetail";
 import { Claim } from "@/pages/Claim";
 import { ConnectButton } from "@/components/ConnectButton";
 import { Shield } from "@/components/Shield";
@@ -44,8 +46,9 @@ export function App() {
         <main className="mx-auto max-w-5xl px-6 pb-16 pt-3">
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/:address" element={<Admin />} />
+            <Route path="/admin" element={<Dashboard />} />
+            <Route path="/admin/new" element={<CampaignWizard />} />
+            <Route path="/admin/c/:address" element={<CampaignDetail />} />
             <Route path="/claim" element={<Claim />} />
             <Route path="/claim/:address" element={<Claim />} />
             <Route path="*" element={<Landing />} />

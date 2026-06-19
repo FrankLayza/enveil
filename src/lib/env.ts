@@ -34,6 +34,15 @@ export const env = {
     | "",
 
   /**
+   * Block to start scanning factory `ConfidentialAirdropCreated` logs from when
+   * listing an admin's campaigns (bounds the getLogs range so RPC providers don't
+   * reject it). Defaults to 0 (full scan — slower but safe). Set this to the
+   * factory's deployment block for fast queries. NEVER set it higher than the
+   * factory deploy block or campaigns will be hidden.
+   */
+  factoryFromBlock: BigInt(import.meta.env.VITE_FACTORY_FROM_BLOCK ?? "0"),
+
+  /**
    * WalletConnect Cloud project id (free) — required by RainbowKit for the
    * WalletConnect / mobile-QR flows. Get one at https://cloud.walletconnect.com.
    * Injected wallets (MetaMask) still work without it, but the modal warns.
