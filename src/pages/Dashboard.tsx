@@ -75,15 +75,33 @@ export function Dashboard() {
         </div>
       ) : isLoading ? (
         /* Loading skeletons */
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-24 animate-pulse rounded-2xl border border-edge bg-panel-2" />
+              <div key={i} className="rounded-2xl border border-violet-edge/40 bg-panel p-5">
+                <div className="h-3 w-16 animate-pulse rounded bg-violet-tint/70" />
+                <div className="mt-4 h-8 w-12 animate-pulse rounded bg-violet-tint/70" />
+              </div>
             ))}
           </div>
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-28 animate-pulse rounded-2xl border border-edge bg-panel-2" />
+              <div key={i} className="rounded-2xl border border-violet-edge/40 bg-panel p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="w-1/3 space-y-2">
+                    <div className="h-5 w-full animate-pulse rounded bg-violet-tint/70" />
+                    <div className="h-3 w-1/2 animate-pulse rounded bg-violet-tint/70" />
+                  </div>
+                  <div className="h-6 w-16 animate-pulse rounded-full bg-violet-tint/70" />
+                </div>
+                <div className="mt-6 space-y-2.5">
+                  <div className="h-2 w-full animate-pulse rounded-full bg-violet-tint/70" />
+                  <div className="flex items-center justify-between">
+                    <div className="h-3 w-1/4 animate-pulse rounded bg-violet-tint/70" />
+                    <div className="h-3 w-1/6 animate-pulse rounded bg-violet-tint/70" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>

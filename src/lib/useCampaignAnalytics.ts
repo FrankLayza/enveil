@@ -51,8 +51,20 @@ function resolveFactory(chainId: number): Address {
  * a couple months, covering this dApp's whole lifetime.
  */
 const DEFAULT_LOOKBACK_BLOCKS = 500_000n;
-/** Per-request span. 9k fits the common public-RPC getLogs caps. */
-const CHUNK_SPAN = 9_000n;
+
+/**
+ * Per-request block span + concurrency, tuned to the configured RPC — because no
+ * single value fits both worlds:
+ *   • Alchemy free tier caps eth_getLogs at a ~2k block RANGE (400 above it) AND
+ *     throttles bursts hard (429). It needs SMALL ranges + LOW concurrency.
+ *   • Public nodes (publicnode etc.) allow ~50k ranges, so a BIG span means far
+ *     fewer requests and no burst — small spans there just trip rate limits.
+ * Ranges are inclusive (`CHUNK_SPAN + 1` blocks), so 1900 stays safely under 2k.
+ * `getLogsRange`'s adaptive bisection remains the safety net for anything stricter.
+ */
+const IS_ALCHEMY = /alchemy\.com/i.test(env.rpcUrl);
+const CHUNK_SPAN = IS_ALCHEMY ? 1_900n : 9_000n;
+const SCAN_CONCURRENCY = IS_ALCHEMY ? 2 : 3;
 
 /**
  * Public RPCs (publicnode et al.) rate-limit a burst of getLogs with 403/429 or
@@ -65,17 +77,19 @@ function isTransientRpcError(err: unknown): boolean {
   return (
     msg.includes("403") ||
     msg.includes("429") ||
+    msg.includes("too many requests") ||
     msg.includes("forbidden") ||
     msg.includes("rate limit") ||
     msg.includes("timeout") ||
     msg.includes("timed out") ||
     msg.includes("failed to fetch") ||
     msg.includes("fetch failed") ||
+    msg.includes("err_failed") ||
     msg.includes("network")
   );
 }
 
-async function withRetry<T>(fn: () => Promise<T>, attempts = 4, baseDelayMs = 600): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, attempts = 5, baseDelayMs = 700): Promise<T> {
   let lastErr: unknown;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -83,8 +97,9 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 4, baseDelayMs = 60
     } catch (err) {
       lastErr = err;
       if (i === attempts - 1 || !isTransientRpcError(err)) throw err;
-      // Exponential backoff with a little jitter to desync concurrent scans.
-      const delay = baseDelayMs * 2 ** i + Math.floor(Math.random() * 250);
+      // Exponential backoff (capped) + jitter to desync concurrent scans and ride
+      // out rate-limit windows (429) instead of hammering.
+      const delay = Math.min(baseDelayMs * 2 ** i, 8000) + Math.floor(Math.random() * 350);
       await new Promise((r) => setTimeout(r, delay));
     }
   }
@@ -104,9 +119,87 @@ async function resolveWindow(client: PublicClient): Promise<[bigint, bigint]> {
 }
 
 /**
- * Scan `getLogs` for a single event across a block window in fixed-size chunks,
- * so it works on every RPC regardless of range cap. Generic over the event so
- * each returned log keeps its decoded `.args`.
+ * A range/response-size rejection — structurally distinct from a transient
+ * throttle. The request is simply too big for this provider (e.g. Alchemy free
+ * 400s above a 2k block range), so retrying it unchanged won't help; we split
+ * the range instead. Matches the common shapes across providers + JSON-RPC codes.
+ */
+function isRangeLimitError(err: unknown): boolean {
+  const msg = String((err as Error)?.message ?? err).toLowerCase();
+  return (
+    msg.includes("400") ||
+    msg.includes("bad request") ||
+    msg.includes("response size") ||
+    msg.includes("block range") ||
+    msg.includes("range is too") ||
+    msg.includes("too large") ||
+    msg.includes("up to a") ||
+    msg.includes("returned more than") ||
+    msg.includes("-32600") ||
+    msg.includes("-32602") ||
+    msg.includes("-32005")
+  );
+}
+
+/**
+ * getLogs for one [from, to] range: retries transient throttles (via withRetry)
+ * and, if the provider rejects the range as too large, bisects and recurses.
+ * This discovers whatever cap the endpoint enforces instead of hard-coding it,
+ * so it works on Alchemy free (2k), publicnode (50k), or anything in between.
+ */
+async function getLogsRange<TEvent extends AbiEvent>(
+  client: PublicClient,
+  filter: { address: Address; event: TEvent; args?: Record<string, unknown> },
+  fromBlock: bigint,
+  toBlock: bigint,
+): Promise<Awaited<ReturnType<typeof client.getLogs<TEvent>>>> {
+  try {
+    return (await withRetry(() =>
+      client.getLogs({
+        address: filter.address,
+        event: filter.event,
+        args: filter.args,
+        fromBlock,
+        toBlock,
+      } as Parameters<typeof client.getLogs>[0]),
+    )) as Awaited<ReturnType<typeof client.getLogs<TEvent>>>;
+  } catch (err) {
+    // Too big for this RPC and still splittable → bisect and recurse.
+    if (isRangeLimitError(err) && toBlock > fromBlock) {
+      const mid = fromBlock + (toBlock - fromBlock) / 2n;
+      const [a, b] = await Promise.all([
+        getLogsRange(client, filter, fromBlock, mid),
+        getLogsRange(client, filter, mid + 1n, toBlock),
+      ]);
+      return [...a, ...b] as Awaited<ReturnType<typeof client.getLogs<TEvent>>>;
+    }
+    throw err;
+  }
+}
+
+/** Map over items with a bounded number of concurrent workers, preserving order. */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const out = new Array<R>(items.length);
+  let cursor = 0;
+  const worker = async () => {
+    while (cursor < items.length) {
+      const i = cursor++;
+      out[i] = await fn(items[i]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return out;
+}
+
+/**
+ * Scan `getLogs` for a single event across a block window. Splits the window into
+ * fixed chunks, fetches them with bounded concurrency, and lets `getLogsRange`
+ * adaptively bisect any chunk the RPC rejects. Generic over the event so each
+ * returned log keeps its decoded `.args`.
  */
 async function scanLogs<TEvent extends AbiEvent>(
   client: PublicClient,
@@ -115,21 +208,15 @@ async function scanLogs<TEvent extends AbiEvent>(
   toBlock: bigint,
 ) {
   type LogItem = Awaited<ReturnType<typeof client.getLogs<TEvent>>>[number];
-  const out: LogItem[] = [];
+  const ranges: Array<[bigint, bigint]> = [];
   for (let start = fromBlock; start <= toBlock; start += CHUNK_SPAN + 1n) {
     const end = start + CHUNK_SPAN > toBlock ? toBlock : start + CHUNK_SPAN;
-    const chunk = await withRetry(() =>
-      client.getLogs({
-        address: filter.address,
-        event: filter.event,
-        args: filter.args,
-        fromBlock: start,
-        toBlock: end,
-      } as Parameters<typeof client.getLogs>[0]),
-    );
-    out.push(...(chunk as LogItem[]));
+    ranges.push([start, end]);
   }
-  return out;
+  const chunks = await mapWithConcurrency(ranges, SCAN_CONCURRENCY, ([s, e]) =>
+    getLogsRange(client, filter, s, e),
+  );
+  return chunks.flat() as LogItem[];
 }
 
 /**
