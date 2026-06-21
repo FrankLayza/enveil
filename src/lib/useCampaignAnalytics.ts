@@ -120,38 +120,59 @@ async function resolveWindow(client: PublicClient): Promise<[bigint, bigint]> {
 
 /**
  * A range/response-size rejection — structurally distinct from a transient
- * throttle. The request is simply too big for this provider (e.g. Alchemy free
- * 400s above a 2k block range), so retrying it unchanged won't help; we split
- * the range instead. Matches the common shapes across providers + JSON-RPC codes.
+ * throttle. The request is simply too big for this provider (e.g. drpc free's
+ * "ranges over 10000 blocks", Alchemy's 2k cap), so splitting the range helps.
+ *
+ * CRUCIAL: auth/policy rejections (publicnode's "Archive requests require a
+ * personal token", missing-API-key) are NOT range errors — splitting them just
+ * re-fails on every sub-range and storms the RPC. Exclude those explicitly, and
+ * match on specific size/range PHRASES rather than bare JSON-RPC codes (codes
+ * like -32602 are also used for auth/param errors).
  */
 function isRangeLimitError(err: unknown): boolean {
   const msg = String((err as Error)?.message ?? err).toLowerCase();
+  // Auth / policy / availability — never bisect these.
+  if (
+    msg.includes("personal token") ||
+    msg.includes("api key") ||
+    msg.includes("unauthorized") ||
+    msg.includes("archive request") ||
+    msg.includes("requires a token") ||
+    msg.includes("authenticate")
+  ) {
+    return false;
+  }
   return (
-    msg.includes("400") ||
-    msg.includes("bad request") ||
-    msg.includes("response size") ||
     msg.includes("block range") ||
     msg.includes("range is too") ||
+    msg.includes("ranges over") ||
     msg.includes("too large") ||
-    msg.includes("up to a") ||
+    msg.includes("response size") ||
     msg.includes("returned more than") ||
-    msg.includes("-32600") ||
-    msg.includes("-32602") ||
-    msg.includes("-32005")
+    msg.includes("more than 10000") ||
+    msg.includes("up to a") ||
+    msg.includes("limited to") ||
+    msg.includes("query timeout")
   );
 }
+
+/** Hard backstop on bisection recursion, so a misclassified error can't explode
+ *  into thousands of requests. 8 levels splits a 9k chunk down to ~35 blocks. */
+const MAX_BISECT_DEPTH = 8;
 
 /**
  * getLogs for one [from, to] range: retries transient throttles (via withRetry)
  * and, if the provider rejects the range as too large, bisects and recurses.
  * This discovers whatever cap the endpoint enforces instead of hard-coding it,
- * so it works on Alchemy free (2k), publicnode (50k), or anything in between.
+ * so it works on drpc (10k), Alchemy free (2k), or anything in between. Auth and
+ * policy errors are never bisected (see isRangeLimitError); depth is capped.
  */
 async function getLogsRange<TEvent extends AbiEvent>(
   client: PublicClient,
   filter: { address: Address; event: TEvent; args?: Record<string, unknown> },
   fromBlock: bigint,
   toBlock: bigint,
+  depth = 0,
 ): Promise<Awaited<ReturnType<typeof client.getLogs<TEvent>>>> {
   try {
     return (await withRetry(() =>
@@ -165,11 +186,11 @@ async function getLogsRange<TEvent extends AbiEvent>(
     )) as Awaited<ReturnType<typeof client.getLogs<TEvent>>>;
   } catch (err) {
     // Too big for this RPC and still splittable → bisect and recurse.
-    if (isRangeLimitError(err) && toBlock > fromBlock) {
+    if (depth < MAX_BISECT_DEPTH && isRangeLimitError(err) && toBlock > fromBlock) {
       const mid = fromBlock + (toBlock - fromBlock) / 2n;
       const [a, b] = await Promise.all([
-        getLogsRange(client, filter, fromBlock, mid),
-        getLogsRange(client, filter, mid + 1n, toBlock),
+        getLogsRange(client, filter, fromBlock, mid, depth + 1),
+        getLogsRange(client, filter, mid + 1n, toBlock, depth + 1),
       ]);
       return [...a, ...b] as Awaited<ReturnType<typeof client.getLogs<TEvent>>>;
     }
