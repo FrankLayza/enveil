@@ -11,10 +11,10 @@ export function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-xl border border-edge bg-panel p-4">
-      <p className="text-xs font-medium uppercase tracking-wider text-faint">{label}</p>
-      <p className="mt-1.5 font-display text-2xl font-semibold text-ink">{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-mute">{hint}</p>}
+    <div className="rounded-2xl border border-edge bg-panel p-5 transition-colors duration-150 hover:border-edge-strong">
+      <p className="text-[0.7rem] font-semibold uppercase tracking-wider text-faint">{label}</p>
+      <p className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">{value}</p>
+      {hint && <p className="mt-1 text-xs text-mute">{hint}</p>}
     </div>
   );
 }

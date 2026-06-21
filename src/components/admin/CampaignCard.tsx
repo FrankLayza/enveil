@@ -27,7 +27,7 @@ export function CampaignCard({
   return (
     <Link
       to={`/admin/c/${address}`}
-      className="block rounded-xl border border-edge bg-panel p-5 transition-all duration-150 hover:-translate-y-0.5 hover:border-violet-edge hover:shadow-lg hover:shadow-violet/5"
+      className="group block rounded-2xl border border-edge bg-panel p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-edge hover:shadow-xl hover:shadow-violet/10"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">

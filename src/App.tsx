@@ -17,8 +17,8 @@ export function App() {
       <div className="min-h-full bg-bg text-ink noise-overlay mesh-gradient-bg">
         <SpeedInsights />
         {/* ── Top navbar (Contiant-style: wordmark left, links + action right) ── */}
-        <header className="sticky top-0 z-20 bg-bg/70 backdrop-blur-md">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+        <header className="sticky top-0 z-30 border-b border-edge/60 bg-bg/80 backdrop-blur-md">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
             {/* Wordmark — far left */}
             <Link
               to="/"
@@ -31,13 +31,14 @@ export function App() {
             </Link>
 
             {/* Links + action — far right */}
-            <nav className="flex items-center gap-4 sm:gap-8">
+            <nav className="flex items-center gap-1 sm:gap-2">
               <NavLink to="/admin" active={pathname.startsWith("/admin")}>
                 Create
               </NavLink>
               <NavLink to="/claim" active={pathname.startsWith("/claim")}>
                 Claim
               </NavLink>
+              <span className="mx-1.5 hidden h-5 w-px bg-edge sm:block" aria-hidden />
               <ConnectButton />
             </nav>
           </div>
@@ -72,9 +73,12 @@ function NavLink({
   return (
     <Link
       to={to}
+      aria-current={active ? "page" : undefined}
       className={
-        "link-rise text-sm font-medium transition-colors duration-150 " +
-        (active ? "text-ink" : "text-mute hover:text-ink")
+        "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 " +
+        (active
+          ? "bg-violet-tint text-violet-deep"
+          : "text-mute hover:bg-panel-2 hover:text-ink")
       }
     >
       {children}

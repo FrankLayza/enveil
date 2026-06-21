@@ -93,23 +93,30 @@ export function CampaignWizard() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <header className="mb-8 flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-0">
-        <div>
-          <Link
-            to="/admin"
-            className="link-rise mb-1 inline-block text-sm font-medium text-mute hover:text-ink"
-          >
-            ← Dashboard
-          </Link>
-          <h1 className="text-xl font-semibold tracking-tight">New campaign</h1>
+      <div className="mb-6">
+        <Link
+          to="/admin"
+          className="link-rise inline-flex items-center gap-1.5 text-sm font-medium text-mute hover:text-ink"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M11 18l-6-6 6-6" />
+          </svg>
+          Dashboard
+        </Link>
+        <div className="mt-3 flex items-end justify-between gap-4">
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-ink">New campaign</h1>
+            <p className="mt-1 text-sm text-mute">
+              Encrypted end-to-end — set up a confidential distribution in five steps.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full border border-edge bg-panel px-3 py-1 font-mono text-xs text-mute">
+            {current}/{STEPS.length}
+          </span>
         </div>
-        <span className="font-mono text-xs text-faint">
-          step {current} of {STEPS.length}
-          <span className="sm:hidden"> — {STEPS[current - 1]?.label}</span>
-        </span>
-      </header>
+      </div>
 
-      <div className="rounded-2xl border border-edge bg-panel p-4 sm:p-8">
+      <div className="rounded-2xl border border-edge bg-panel p-5 shadow-sm sm:p-8">
         <div className="mb-8">
           <Stepper steps={STEPS} current={current} />
         </div>

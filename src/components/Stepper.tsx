@@ -1,7 +1,7 @@
 /**
  * Stepper — the signature element. A connected pipeline of 5 campaign steps.
  * The connector between nodes FILLS as you advance; completed steps lock with a
- * check; the active step pulses with the iris ring. This encodes the forward-only,
+ * check; the active step carries a soft gold ring. This encodes the forward-only,
  * irreversible nature of on-chain campaign creation — you can't un-deploy.
  */
 export interface StepDef {
@@ -30,9 +30,9 @@ export function Stepper({
               <Node status={status} n={step.id} />
               <span
                 className={
-                  "mt-2 whitespace-nowrap text-[11px] font-medium tracking-wide transition-colors duration-200 sm:text-xs " +
-                  // On mobile, hide all labels to prevent squeezing/overlap under the node circles.
-                  // The active step title is displayed in the page header on mobile instead.
+                  "mt-2.5 whitespace-nowrap text-[11px] font-medium tracking-wide transition-colors duration-200 sm:text-xs " +
+                  // On mobile, hide labels to prevent squeezing under the nodes.
+                  // The active step title shows in the page header on mobile instead.
                   "hidden sm:block " +
                   (status === "active"
                     ? "text-gold-dim"
@@ -46,9 +46,9 @@ export function Stepper({
             </div>
 
             {!isLast && (
-              <div className="relative mt-[15px] h-px flex-1 bg-edge">
+              <div className="relative mt-[17px] h-0.5 flex-1 overflow-hidden rounded-full bg-edge">
                 <div
-                  className="absolute inset-0 origin-left bg-iris transition-transform duration-500 ease-out"
+                  className="absolute inset-0 origin-left rounded-full bg-iris transition-transform duration-500 ease-out"
                   style={{ transform: `scaleX(${connectorFilled ? 1 : 0})` }}
                 />
               </div>
@@ -62,7 +62,7 @@ export function Stepper({
 
 function Node({ status, n }: { status: "done" | "active" | "todo"; n: number }) {
   const base =
-    "relative flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-200";
+    "relative flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-200";
   if (status === "done") {
     return (
       <span className={base + " border-iris bg-iris text-white"}>
@@ -72,27 +72,17 @@ function Node({ status, n }: { status: "done" | "active" | "todo"; n: number }) 
   }
   if (status === "active") {
     return (
-      <span
-        className={
-          base +
-          " border-gold bg-gold/10 text-gold-dim"
-        }
-      >
-        <span className="absolute inset-0 animate-ping rounded-full bg-gold/20" />
-        <span className="relative">{n}</span>
+      <span className={base + " border-gold bg-gold/10 text-gold-dim ring-4 ring-gold/15"}>
+        {n}
       </span>
     );
   }
-  return (
-    <span className={base + " border-edge-strong text-faint"}>
-      {n}
-    </span>
-  );
+  return <span className={base + " border-edge-strong bg-panel text-faint"}>{n}</span>;
 }
 
 function CheckIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 6 9 17l-5-5" />
     </svg>
   );

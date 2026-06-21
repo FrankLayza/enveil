@@ -59,7 +59,7 @@ export function Dashboard() {
             Create, track, and watch claim progress — counts only, never amounts.
           </p>
         </div>
-        {isConnected && list.length > 0 && <NewCampaignButton />}
+        {isConnected && <NewCampaignButton />}
       </header>
 
       {/* Not connected */}
@@ -78,45 +78,57 @@ export function Dashboard() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-20 animate-pulse rounded-xl border border-edge bg-panel-2" />
+              <div key={i} className="h-24 animate-pulse rounded-2xl border border-edge bg-panel-2" />
             ))}
           </div>
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-28 animate-pulse rounded-xl border border-edge bg-panel-2" />
+              <div key={i} className="h-28 animate-pulse rounded-2xl border border-edge bg-panel-2" />
             ))}
           </div>
         </div>
       ) : isError ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-5">
-          <p className="text-sm font-medium text-danger">
+        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6">
+          <p className="text-sm font-semibold text-danger">
             Couldn't load campaigns from the network.
           </p>
           <p className="mt-1 max-w-md text-sm text-danger/80">
             The RPC endpoint rejected the request — usually a rate limit on a public
-            node. Wait a moment and retry, or switch to a dedicated RPC.
+            node. Wait a moment and retry, or switch to a dedicated RPC. You can still
+            create a campaign in the meantime.
           </p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={isFetching ? "animate-spin" : ""}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" />
-            </svg>
-            {isFetching ? "Retrying…" : "Try again"}
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={isFetching ? "animate-spin" : ""}
+              >
+                <path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" />
+              </svg>
+              {isFetching ? "Retrying…" : "Try again"}
+            </button>
+            <Link
+              to="/admin/new"
+              className="inline-flex items-center gap-2 rounded-full border border-violet-edge bg-panel px-4 py-2 text-xs font-semibold text-violet-deep transition-all duration-150 hover:-translate-y-0.5 hover:bg-violet-tint/50"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              New campaign
+            </Link>
+          </div>
         </div>
       ) : list.length === 0 ? (
         /* Empty state */

@@ -76,6 +76,14 @@ export function StepRecipients({
 
   return (
     <div className="animate-step-in">
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold tracking-tight text-ink">Add recipients</h2>
+        <p className="text-sm text-mute">
+          Import a CSV or enter who gets paid and how much. Nothing here touches the
+          chain yet — amounts are encrypted in a later step.
+        </p>
+      </div>
+
       {/* Campaign name — off-chain label shown on the dashboard. */}
       <div className="mb-6">
         <label className="block text-xs font-medium uppercase tracking-wider text-faint mb-1.5">
