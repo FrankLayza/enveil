@@ -28,7 +28,7 @@ const STEPS = [
     number: 3,
     title: "Recipients claim privately",
     body: "Each person opens their private link, verifies their own amount, and claims. On-chain: only that a claim happened.",
-    img: "/illustrations/hiw-step3.png",
+    img: "/illustrations/recipients-enveil.png",
     imgAlt: "Mobile phone showing claim confirmed screen",
   },
 ];

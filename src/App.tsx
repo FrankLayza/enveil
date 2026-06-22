@@ -85,46 +85,36 @@ function MarketingNav() {
     <header
       style={{
         position: "fixed",
-        top: scrolled ? "1.25rem" : "0",
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: scrolled ? "calc(100% - 2rem)" : "100%",
-        maxWidth: scrolled ? "360px" : "1200px",
-        borderRadius: scrolled ? "9999px" : "0",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 0,
         zIndex: 30,
-        transition: "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
-        border: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid transparent",
-        borderBottom: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid transparent",
-        background: scrolled ? "rgba(255, 255, 255, 0.72)" : "transparent",
-        backdropFilter: scrolled ? "blur(14px)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(14px)" : "none",
-        boxShadow: scrolled ? "0 12px 30px -10px rgba(0, 0, 0, 0.12), 0 4px 12px -5px rgba(0, 0, 0, 0.05)" : "none",
+        pointerEvents: "none",
       }}
     >
+      {/* ── 1. FULL-WIDTH HEADER (Fades out on scroll) ── */}
       <div
-        className="flex items-center justify-between"
+        className="w-full flex items-center justify-between"
         style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: scrolled
+            ? "translateX(-50%) translateY(-10px)"
+            : "translateX(-50%) translateY(0)",
+          opacity: scrolled ? 0 : 1,
           width: "100%",
-          padding: scrolled ? "0.45rem 1.25rem" : "0.875rem 1.5rem",
-          transition: "padding 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
+          maxWidth: "72rem",
+          padding: "0.875rem 1.5rem",
+          transition: "opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+          pointerEvents: scrolled ? "none" : "auto",
         }}
       >
-        <Wordmark light={!scrolled} />
+        <Wordmark light={true} />
 
         {/* Center anchor links (desktop) */}
-        <nav
-          className="hidden md:flex items-center"
-          style={{
-            gap: scrolled ? "0px" : "2rem",
-            opacity: scrolled ? 0 : 1,
-            maxWidth: scrolled ? "0px" : "500px",
-            transform: scrolled ? "scale(0.9) translateY(-6px)" : "scale(1) translateY(0)",
-            pointerEvents: scrolled ? "none" : "auto",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            transition: "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-        >
+        <nav className="hidden items-center gap-8 md:flex">
           {SECTIONS.map((s) => (
             <button
               key={s.id}
@@ -140,21 +130,21 @@ function MarketingNav() {
           ))}
         </nav>
 
-        {/* Right action and mobile trigger */}
+        {/* Right action & mobile triggers */}
         <div className="flex items-center">
           <Link
             to="/admin"
             className="group inline-flex items-center gap-2 rounded-full bg-violet font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-violet-hover"
             style={{
-              padding: scrolled ? "0.45rem 1.1rem" : "0.6rem 1.25rem",
-              fontSize: scrolled ? "0.825rem" : "0.875rem",
-              boxShadow: scrolled ? "0 4px 12px rgba(124,58,237,0.2)" : "0 8px 20px rgba(124,58,237,0.25)",
+              padding: "0.6rem 1.25rem",
+              fontSize: "0.875rem",
+              boxShadow: "0 8px 20px rgba(124,58,237,0.25)",
             }}
           >
             Open App
             <svg
-              width={scrolled ? "14" : "16"}
-              height={scrolled ? "14" : "16"}
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -167,19 +157,8 @@ function MarketingNav() {
             </svg>
           </Link>
 
-          {/* Mobile hamburger menu (only on mobile, collapses when scrolled) */}
-          <div
-            className="flex items-center md:hidden"
-            style={{
-              opacity: scrolled ? 0 : 1,
-              maxWidth: scrolled ? "0px" : "60px",
-              transform: scrolled ? "scale(0.9)" : "scale(1)",
-              pointerEvents: scrolled ? "none" : "auto",
-              overflow: "hidden",
-              marginLeft: scrolled ? "0px" : "0.5rem",
-              transition: "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
-            }}
-          >
+          {/* Mobile hamburger menu */}
+          <div className="flex items-center md:hidden ml-2">
             <button
               type="button"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -200,9 +179,70 @@ function MarketingNav() {
         </div>
       </div>
 
-      {/* Mobile dropdown panel (only when NOT scrolled and open) */}
+      {/* ── 2. COMPACT FLOATING PILL (Fades in on scroll) ── */}
+      <div
+        className="flex items-center justify-between"
+        style={{
+          position: "absolute",
+          top: "1.25rem",
+          left: "50%",
+          transform: scrolled
+            ? "translateX(-50%) translateY(0) scale(1)"
+            : "translateX(-50%) translateY(-10px) scale(0.95)",
+          opacity: scrolled ? 1 : 0,
+          width: "calc(100% - 2rem)",
+          maxWidth: "360px",
+          borderRadius: "9999px",
+          padding: "0.45rem 1.25rem",
+          background: "rgba(255, 255, 255, 0.72)",
+          border: "1px solid rgba(0, 0, 0, 0.08)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          boxShadow: "0 12px 30px -10px rgba(0, 0, 0, 0.12), 0 4px 12px -5px rgba(0, 0, 0, 0.05)",
+          transition: "opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+          pointerEvents: scrolled ? "auto" : "none",
+        }}
+      >
+        <Wordmark light={false} />
+
+        <Link
+          to="/admin"
+          className="group inline-flex items-center gap-2 rounded-full bg-violet font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-violet-hover"
+          style={{
+            padding: "0.45rem 1.1rem",
+            fontSize: "0.825rem",
+            boxShadow: "0 4px 12px rgba(124,58,237,0.2)",
+          }}
+        >
+          Open App
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.25"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="transition-transform duration-150 group-hover:translate-x-0.5"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </Link>
+      </div>
+
+      {/* Mobile dropdown panel (under the full header, only when unscrolled and open) */}
       {!scrolled && menuOpen && (
-        <div className="border-t border-edge/60 bg-bg/95 backdrop-blur-md md:hidden animate-step-in">
+        <div
+          className="border-t border-edge/60 bg-bg/95 backdrop-blur-md md:hidden animate-step-in"
+          style={{
+            position: "absolute",
+            top: "3.75rem",
+            left: 0,
+            right: 0,
+            pointerEvents: "auto",
+          }}
+        >
           <nav className="mx-auto flex max-w-6xl flex-col px-4 py-2 sm:px-6">
             {SECTIONS.map((s) => (
               <button
