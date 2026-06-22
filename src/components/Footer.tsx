@@ -13,7 +13,7 @@ export function Footer() {
           {/* Left side: Brand info */}
           <div className="flex flex-col items-start">
             <div className="flex items-center gap-1.5">
-              <img src="/illustrations/enveil-logo-2.svg" alt="Enveil Logo" className="h-6 w-auto" />
+              <img src="/illustrations/enveil-logo-2.svg" alt="Enveil Logo" className="h-5 w-auto" />
               <span className="font-wordmark text-base lowercase tracking-tight text-ink">
                 enveil
               </span>

@@ -47,7 +47,7 @@ function Wordmark({ light }: { light?: boolean }) {
         transition: "color 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.15s ease",
       }}
     >
-      <img src="/illustrations/enveil-logo-2.svg" alt="Enveil Logo" className="h-6 w-auto" />
+      <img src="/illustrations/enveil-logo-2.svg" alt="Enveil Logo" className="h-5 w-auto" />
       <span className="font-wordmark text-base lowercase tracking-wider sm:text-lg">
         enveil
       </span>
