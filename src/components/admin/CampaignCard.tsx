@@ -113,16 +113,15 @@ export function CampaignCard({
   const theme = getCardTheme();
 
   const getImgUrl = () => {
-    // In search of images with these keywords:
     switch (campaignType) {
       case "payroll":
-        return "/images/payroll.jpg";
+        return "/illustrations/contributor.jpg";
       case "investor":
-        return "/images/investor.jpg";
+        return "/illustrations/investor.jpg";
       case "vesting":
-        return "/images/vesting.jpg";
+        return "/illustrations/vesting.jpg";
       default:
-        return "/images/community.jpg";
+        return "/illustrations/community.jpg";
     }
   };
 
