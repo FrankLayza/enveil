@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { shortAddress, recipientNoun, type CampaignType } from "@/lib/recipients";
 import { type VestingRecipientDelivery, formatUnlockDate } from "@/lib/vesting";
+import { buildClaimLink } from "@/lib/claimLink";
 
 interface StepDeliverProps {
   tokenAddress: string;
@@ -34,8 +35,8 @@ export function StepDeliver({
   
   
   
-  const getVestingClaimLink = (d: VestingRecipientDelivery) => {
-    const payload = {
+  const getVestingClaimLink = (d: VestingRecipientDelivery) =>
+    buildClaimLink(window.location.origin, {
       r: d.address,
       l: d.label ?? "",
       total: d.totalAmount,
@@ -48,19 +49,18 @@ export function StepDeliver({
         p: tr.encryptedInput.inputProof,
         s: tr.signature,
       })),
-    };
-    return `${window.location.origin}/claim#v=${encodeURIComponent(JSON.stringify(payload))}`;
-  };
+    });
 
-  const getClaimLink = (auth: (typeof authorizations)[0]) => {
-    const origin = window.location.origin;
-    const path = "/claim";
-    
-    
-    const labelPart = auth.label ? `&l=${encodeURIComponent(auth.label)}` : "";
-    const hash = `c=${campaignAddress}&r=${auth.address}&a=${auth.amount}&h=${auth.encryptedInput.handle}&p=${auth.encryptedInput.inputProof}&s=${auth.signature}${labelPart}`;
-    return `${origin}${path}#${hash}`;
-  };
+  const getClaimLink = (auth: (typeof authorizations)[0]) =>
+    buildClaimLink(window.location.origin, {
+      c: campaignAddress,
+      r: auth.address,
+      a: auth.amount,
+      h: auth.encryptedInput.handle,
+      p: auth.encryptedInput.inputProof,
+      s: auth.signature,
+      ...(auth.label ? { l: auth.label } : {}),
+    });
 
   const handleCopyLink = (auth: (typeof authorizations)[0], index: number) => {
     const link = getClaimLink(auth);

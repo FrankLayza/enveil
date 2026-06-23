@@ -11,6 +11,7 @@ import {
 import { formatTokens, shortAddress, TOKEN_DECIMALS } from "@/lib/recipients";
 import { ConfidentialBalance } from "@/components/ConfidentialBalance";
 import { VestingClaim, type VestingPayload } from "@/components/VestingClaim";
+import { decodeClaimPayload, isVestingPayload } from "@/lib/claimLink";
 
 // The Zama relayer and Sepolia RPC intermittently time out / fetch-fail. These
 
@@ -59,7 +60,33 @@ export function Claim() {
     const hash = window.location.hash.substring(1);
     if (!hash) return;
     try {
-      
+      // Current format: a single lz-string-compressed payload under `z=`. The
+      // value is already URI-safe (alphabet A-Za-z0-9+-$), so extract it with a
+      // regex and decode directly — never via URLSearchParams, which would turn
+      // `+` into a space and corrupt the payload.
+      const zMatch = hash.match(/(?:^|&)z=([^&]+)/);
+      if (zMatch) {
+        const parsed = decodeClaimPayload(zMatch[1]);
+        if (isVestingPayload(parsed)) {
+          setVestingPayload(parsed as unknown as VestingPayload);
+          window.location.hash = "";
+          return;
+        }
+        if (parsed && (parsed as any).c && (parsed as any).r) {
+          const p = parsed as any;
+          setCampaignAddress(p.c);
+          setRecipientAddress(p.r);
+          setPlaintextAmount(p.a);
+          setEncryptedHandle(p.h as `0x${string}`);
+          setInputProof(p.p as `0x${string}`);
+          setSignature(p.s as `0x${string}`);
+          if (p.l) setRecipientLabel(p.l);
+          window.location.hash = "";
+          return;
+        }
+      }
+
+      // Legacy format: `v=` carried encodeURIComponent'd JSON for vesting links.
       const vMatch = hash.match(/(?:^|&)v=([^&]+)/);
       if (vMatch) {
         const parsed = JSON.parse(decodeURIComponent(vMatch[1]));
@@ -70,6 +97,7 @@ export function Claim() {
         }
       }
 
+      // Legacy format: flat `c=&r=&a=&h=&p=&s=&l=` key/value pairs.
       const params = new URLSearchParams(hash);
       const c = params.get("c");
       const r = params.get("r");
