@@ -19,12 +19,25 @@ export interface Recipient {
   label?: string;
 }
 
-/** Campaign type — display-only framing; does not change any contract call. */
-export type CampaignType = "payroll" | "investor" | "community";
+/**
+ * Campaign type — mostly display-only framing. EXCEPTION: "vesting" changes the
+ * deploy flow (one confidential airdrop per dated tranche instead of one); see
+ * lib/vesting.ts and StepVesting.
+ */
+export type CampaignType = "payroll" | "investor" | "community" | "vesting";
 
 /** Singular noun for recipients under each campaign type (for UI copy). */
 export function recipientNoun(type: CampaignType): string {
-  return type === "payroll" ? "contributor" : type === "investor" ? "investor" : "recipient";
+  switch (type) {
+    case "payroll":
+      return "contributor";
+    case "investor":
+      return "investor";
+    case "vesting":
+      return "grantee";
+    default:
+      return "recipient";
+  }
 }
 
 export interface RecipientIssue {

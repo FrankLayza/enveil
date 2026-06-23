@@ -41,10 +41,10 @@ export function Landing() {
     const ctx = gsap.context(() => {
       gsap
         .timeline({ defaults: { ease: "power3.out" } })
-        .from(".js-eyebrow",  { y: 18, opacity: 0, duration: 0.6 })
-        .from(".js-title",    { y: 28, opacity: 0, duration: 0.9 }, "-=0.35")
-        .from(".js-sub",      { y: 20, opacity: 0, duration: 0.75 }, "-=0.6")
-        .from(".js-cta",      { y: 16, opacity: 0, duration: 0.6 }, "-=0.5");
+        .from(".js-eyebrow", { y: 18, opacity: 0, duration: 0.6 })
+        .from(".js-title", { y: 28, opacity: 0, duration: 0.9 }, "-=0.35")
+        .from(".js-sub", { y: 20, opacity: 0, duration: 0.75 }, "-=0.6")
+        .from(".js-cta", { y: 16, opacity: 0, duration: 0.6 }, "-=0.5");
     }, heroRef);
     return () => ctx.revert();
   }, []);
@@ -54,21 +54,7 @@ export function Landing() {
       {/* ── 1 · HERO ───────────────────────────────────────────────────────── */}
       <section
         ref={heroRef}
-        style={{
-          position: "relative",
-          overflow: "hidden",
-          paddingTop: "10rem",
-          paddingBottom: "6rem",
-          textAlign: "center",
-          backgroundImage: "url('/illustrations/hero-bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center center",
-          backgroundRepeat: "no-repeat",
-          minHeight: "90vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className="relative overflow-hidden pt-40 pb-24 text-center min-h-[90vh] flex items-center justify-center bg-[url('/illustrations/hero-bg.png')] bg-center bg-no-repeat bg-[length:auto_100%] md:bg-cover"
       >
         {/* Dark overlay for text contrast */}
         <div
@@ -126,20 +112,17 @@ export function Landing() {
 
           {/* Headline */}
           <h1
-            className="js-title"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(2.5rem, 6.5vw, 4.5rem)",
-              fontWeight: 800,
-              lineHeight: 1.04,
-              letterSpacing: "-0.025em",
-              color: "#ffffff",
-              margin: "0 auto 1.5rem",
-              maxWidth: "44rem",
-            }}
+            className="js-title mx-auto mb-6 max-w-3xl font-display font-extrabold leading-[1.04] tracking-tight text-white text-[clamp(2.15rem,6vw,4.5rem)]"
           >
             Token grants shouldn't be{" "}
-            <span style={{ position: "relative", display: "inline-block", color: "var(--color-violet-line)", whiteSpace: "nowrap" }}>
+            <span
+              style={{
+                position: "relative",
+                display: "inline-block",
+                color: "var(--color-violet-line)",
+                whiteSpace: "nowrap",
+              }}
+            >
               everyone's business.
               <UnderlineSquiggle />
             </span>
@@ -157,8 +140,8 @@ export function Landing() {
             }}
           >
             Enveil encrypts every allocation on-chain with Fully Homomorphic
-            Encryption. Your contributors verify and claim only their own grant —
-            amounts stay confidential from everyone else. Forever.
+            Encryption. Your contributors verify and claim only their own grant
+            — amounts stay confidential from everyone else. Forever.
           </p>
 
           {/* CTAs */}
@@ -188,11 +171,22 @@ export function Landing() {
                 boxShadow: "0 8px 28px -10px rgba(124,58,237,0.5)",
                 transition: "transform 0.15s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "translateY(-2px)")
+              }
               onMouseLeave={(e) => (e.currentTarget.style.transform = "")}
             >
               Open App
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M7 17L17 7M7 7h10v10" />
               </svg>
             </Link>
@@ -215,7 +209,9 @@ export function Landing() {
                 cursor: "pointer",
                 transition: "transform 0.15s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "translateY(-2px)")
+              }
               onMouseLeave={(e) => (e.currentTarget.style.transform = "")}
             >
               How it works
@@ -304,7 +300,13 @@ function UnderlineSquiggle() {
       aria-hidden
       viewBox="0 0 200 12"
       preserveAspectRatio="none"
-      style={{ position: "absolute", bottom: "-0.4rem", left: 0, height: "0.75rem", width: "100%" }}
+      style={{
+        position: "absolute",
+        bottom: "-0.4rem",
+        left: 0,
+        height: "0.75rem",
+        width: "100%",
+      }}
     >
       <path
         d="M3 7 C 40 2, 80 11, 120 5 S 180 3, 197 7"

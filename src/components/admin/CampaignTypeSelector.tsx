@@ -30,6 +30,12 @@ const OPTIONS: Array<{
     description: "Airdrop to community members. Amounts remain confidential on-chain.",
     icon: <GiftIcon />,
   },
+  {
+    id: "vesting",
+    label: "Vesting Schedule",
+    description: "Release allocations in private, scheduled unlocks. Amounts stay encrypted on-chain.",
+    icon: <ClockIcon />,
+  },
 ];
 
 export function CampaignTypeSelector({
@@ -47,7 +53,7 @@ export function CampaignTypeSelector({
           Sets the wording across the wizard. The encrypted pipeline is identical for every type.
         </p>
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {OPTIONS.map((opt) => {
           const selected = opt.id === value;
           return (
@@ -59,13 +65,16 @@ export function CampaignTypeSelector({
               className={
                 "group relative cursor-pointer rounded-xl border p-4 text-left transition-all duration-150 " +
                 (selected
-                  ? "border-gold bg-gold/5 ring-1 ring-gold/40"
-                  : "border-edge-strong hover:-translate-y-0.5 hover:border-gold/50 hover:bg-panel-2")
+                  ? "border-(--card-accent) bg-(--card-accent)/5 ring-1 ring-(--card-accent)/40"
+                  : "border-edge-strong hover:-translate-y-0.5 hover:border-(--card-accent)/50 hover:bg-panel-2")
               }
             >
               {/* Selected check */}
               {selected && (
-                <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-gold-dim">
+                <span
+                  className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full"
+                  style={{ backgroundColor: "var(--card-accent)", color: "var(--card-accent-ink)" }}
+                >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
@@ -74,8 +83,9 @@ export function CampaignTypeSelector({
               <span
                 className={
                   "flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-150 " +
-                  (selected ? "bg-gold/20 text-gold-dim" : "bg-panel-2 text-mute group-hover:text-ink")
+                  (selected ? "" : "bg-panel-2 text-mute group-hover:text-ink")
                 }
+                style={selected ? { backgroundColor: "var(--card-accent)", color: "var(--card-accent-ink)" } : undefined}
               >
                 {opt.icon}
               </span>
@@ -104,6 +114,14 @@ function ChartIcon() {
       <path d="M3 3v18h18" />
       <rect x="7" y="11" width="3" height="6" rx="0.5" />
       <rect x="13" y="7" width="3" height="10" rx="0.5" />
+    </svg>
+  );
+}
+function ClockIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
     </svg>
   );
 }

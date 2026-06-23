@@ -7,33 +7,37 @@ import { useLenis } from "lenis/react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
+// Mirrors the three campaign types in the create wizard (payroll / investor /
+// community). No "vesting" — the confidential airdrop is a single private claim,
+// not a vesting schedule. The selling point is the same across all three: amounts
+// are otherwise public on every block explorer; Enveil encrypts them on-chain.
 const USE_CASES = [
   {
-    title: "Token Vesting",
-    tagline: "Your grant schedule is your business.",
-    body: "Every grant amount sits in public on Etherscan. Enveil encrypts allocations on-chain — recipients see only what they've vested.",
-    bestFor: "protocol teams, founder & advisor grants",
-    illustration: "/illustrations/salary-privacy.png",
-    bg: "#DFD1F4",
-    accent: "var(--color-violet)",
-    accentTint: "var(--color-violet-tint)",
-  },
-  {
     title: "Contributor Payroll",
-    tagline: "Salaries between you and your team.",
-    body: "Monthly payments to DAO contributors are fully transparent on any block explorer. Enveil keeps the amounts encrypted while still delivering them on-chain — verifiably and privately.",
+    tagline: "Salaries stay between you and your team.",
+    body: "Pay DAO contributors on-chain without posting everyone's salary to a public explorer. Enveil keeps each amount encrypted — paid verifiably, but privately.",
     bestFor: "DAOs, recurring contributor payments",
-    illustration: "/illustrations/verify-before-claim.png",
+    illustration: "/illustrations/salary-privacy.png",
     bg: "#DFC9C0",
     accent: "var(--color-gold)",
     accentTint: "var(--color-gold-tint)",
   },
   {
     title: "Investor Distributions",
-    tagline: "Cap table privacy, on-chain.",
-    body: "Token unlocks to investors expose allocation sizes to the public. Enveil delivers them privately — each recipient verifies their own share without exposing the total or the list.",
-    bestFor: "token unlocks, SAFT distributions",
+    tagline: "Cap-table privacy, on-chain.",
+    body: "Token distributions expose each investor's allocation to the public. Enveil delivers them privately — every recipient verifies their own share without revealing the total or the list.",
+    bestFor: "token distributions, SAFT payouts",
     illustration: "/illustrations/no-roster.png",
+    bg: "#DFD1F4",
+    accent: "var(--color-violet)",
+    accentTint: "var(--color-violet-tint)",
+  },
+  {
+    title: "Community Rewards",
+    tagline: "Reward members without a public leaderboard.",
+    body: "Airdrops put every reward amount on display forever. Enveil encrypts allocations on-chain — members claim and verify their own, and nobody else's.",
+    bestFor: "community airdrops, contributor bonuses",
+    illustration: "/illustrations/verify-before-claim.png",
     bg: "#DFF3F6",
     accent: "#0891b2",
     accentTint: "#e0f7fa",

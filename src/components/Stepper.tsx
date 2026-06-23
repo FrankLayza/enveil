@@ -35,7 +35,7 @@ export function Stepper({
                   // The active step title shows in the page header on mobile instead.
                   "hidden sm:block " +
                   (status === "active"
-                    ? "text-gold-dim"
+                    ? "text-ink font-semibold"
                     : status === "done"
                       ? "text-ink"
                       : "text-faint")
@@ -46,10 +46,13 @@ export function Stepper({
             </div>
 
             {!isLast && (
-              <div className="relative mt-[17px] h-0.5 flex-1 overflow-hidden rounded-full bg-edge">
+              <div className="relative mt-[17px] h-0.5 flex-1 overflow-hidden rounded-full bg-edge/40">
                 <div
-                  className="absolute inset-0 origin-left rounded-full bg-iris transition-transform duration-500 ease-out"
-                  style={{ transform: `scaleX(${connectorFilled ? 1 : 0})` }}
+                  className="absolute inset-0 origin-left rounded-full transition-transform duration-500 ease-out"
+                  style={{ 
+                    backgroundColor: "var(--card-accent)",
+                    transform: `scaleX(${connectorFilled ? 1 : 0})` 
+                  }}
                 />
               </div>
             )}
@@ -65,19 +68,30 @@ function Node({ status, n }: { status: "done" | "active" | "todo"; n: number }) 
     "relative flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-200";
   if (status === "done") {
     return (
-      <span className={base + " border-iris bg-iris text-white"}>
+      <span 
+        className={base + " text-white"}
+        style={{ backgroundColor: "var(--card-accent)", borderColor: "var(--card-accent)" }}
+      >
         <CheckIcon />
       </span>
     );
   }
   if (status === "active") {
     return (
-      <span className={base + " border-gold bg-gold/10 text-gold-dim ring-4 ring-gold/15"}>
+      <span 
+        className={base}
+        style={{ 
+          borderColor: "var(--card-accent)", 
+          backgroundColor: "var(--card-accent-tint)", 
+          color: "var(--card-accent)",
+          boxShadow: "0 0 0 4px var(--card-accent-tint)"
+        }}
+      >
         {n}
       </span>
     );
   }
-  return <span className={base + " border-edge-strong bg-panel text-faint"}>{n}</span>;
+  return <span className={base + " border-edge bg-panel-2 text-mute/50"}>{n}</span>;
 }
 
 function CheckIcon() {

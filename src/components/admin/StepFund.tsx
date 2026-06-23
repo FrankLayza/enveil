@@ -185,30 +185,33 @@ export function StepFund({
         </p>
       </div>
 
-      <div className="rounded-xl border border-edge bg-panel-2 p-4 space-y-3.5 text-sm">
+      <div className="rounded-xl border border-edge bg-panel-2 p-5 space-y-4 text-sm shadow-xs">
         <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-0">
-          <span className="text-mute">Campaign clone</span>
-          <span className="font-mono font-medium text-ink hidden sm:inline break-all">{campaignAddress}</span>
-          <span className="font-mono font-medium text-ink sm:hidden">{shortAddress(campaignAddress)}</span>
+          <span className="text-ink/60 font-medium">Campaign clone</span>
+          <span className="font-mono font-medium text-ink hidden sm:inline break-all bg-panel px-2 py-0.5 rounded-md border border-edge">{campaignAddress}</span>
+          <span className="font-mono font-medium text-ink sm:hidden bg-panel px-2 py-0.5 rounded-md border border-edge">{shortAddress(campaignAddress)}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-mute">Required tokens</span>
-          <span className="font-mono font-semibold text-gold-dim">
+        <div className="flex justify-between items-center">
+          <span className="text-ink/60 font-medium">Required tokens</span>
+          <span className="font-mono font-bold text-lg" style={{ color: "var(--card-accent)" }}>
             {formatTokens(totalAmount)}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-mute">Your gas balance</span>
-          <span className={"font-mono font-medium " + (isLowEth ? "text-danger" : "text-ink")}>
+        <div className="flex justify-between items-center">
+          <span className="text-ink/60 font-medium">Your gas balance</span>
+          <span className={"font-mono font-semibold " + (isLowEth ? "text-danger bg-danger/10 px-2 py-0.5 rounded-md" : "text-ink bg-panel px-2 py-0.5 rounded-md border border-edge")}>
             {ethBalance ? `${Number(formatEther(ethBalance.value)).toFixed(4)} ETH` : "—"}
           </span>
         </div>
       </div>
 
       {isLowEth && (
-        <div className="rounded-lg border border-gold/40 bg-gold-tint/40 p-3.5 text-xs text-gold-dim">
-          Low on Sepolia ETH. Creating + funding a campaign costs roughly <span className="font-mono">~0.05 ETH</span> in
-          gas (FHE operations are heavy). Top up before funding, or the transaction may fail with “insufficient funds.”
+        <div className="flex items-start gap-3 rounded-[14px] border border-danger/20 bg-danger/10 p-4 text-xs text-danger shadow-inner">
+          <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>
+            Low on Sepolia ETH. Creating + funding a campaign costs roughly <span className="font-mono font-bold">~0.05 ETH</span> in
+            gas (FHE operations are heavy). Top up before funding, or the transaction may fail with "insufficient funds."
+          </div>
         </div>
       )}
 
@@ -218,36 +221,43 @@ export function StepFund({
         {/* Approve */}
         <div
           className={
-            "rounded-xl border p-4 transition-all duration-200 " +
-            (isApproveDone ? "border-edge bg-panel-2/60" : "border-gold/40 bg-gold/5")
+            "rounded-xl border p-5 transition-all duration-150 " +
+            (isApproveDone ? "border-edge bg-panel-2/50" : "bg-panel shadow-sm")
           }
+          style={!isApproveDone ? { borderColor: "var(--card-accent)", borderWidth: "2px" } : {}}
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-4">
             <span
               className={
-                "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold " +
-                (isApproveDone ? "border-iris bg-iris text-white" : "border-gold bg-gold/10 text-gold-dim")
+                "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors " +
+                (isApproveDone ? "text-white" : "")
+              }
+              style={
+                isApproveDone 
+                  ? { backgroundColor: "var(--card-accent)", borderColor: "var(--card-accent)" } 
+                  : { backgroundColor: "var(--card-accent-tint)", borderColor: "var(--card-accent)", color: "var(--card-accent)" }
               }
             >
               {isApproveDone ? <MiniCheck /> : "1"}
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-ink">Approve token transfer</h3>
+                <h3 className="text-sm font-bold text-ink">Approve token transfer</h3>
                 {isApproveDone && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-success-bg px-2 py-0.5 text-xs font-semibold text-success-text">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-success-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-success-text border border-success-text/20">
                     <MiniCheck /> Approved
                   </span>
                 )}
               </div>
-              <p className="mt-0.5 text-xs text-mute">
+              <p className="mt-1 text-xs text-ink/60">
                 Authorizes the TokenOps factory to move your confidential tokens (setOperator).
               </p>
               {!isApproveDone && (
                 <button
                   onClick={handleApprove}
                   disabled={isApprovePending || isApproveConfirming}
-                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-iris px-4 py-2 text-xs font-semibold text-white transition-all duration-150 hover:bg-iris-dim disabled:opacity-50"
+                  className="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition-all duration-200 shadow-sm disabled:opacity-50 hover:-translate-y-0.5"
+                  style={{ backgroundColor: "var(--card-accent)", color: "var(--card-accent-ink)" }}
                 >
                   {isApprovePending ? "Approve in wallet…" : isApproveConfirming ? "Confirming…" : "Approve"}
                 </button>
@@ -259,31 +269,38 @@ export function StepFund({
         {/* Deposit */}
         <div
           className={
-            "rounded-xl border p-4 transition-all duration-200 " +
+            "rounded-xl border p-5 transition-all duration-150 " +
             (isApproveDone
-              ? "border-gold/40 bg-gold/5"
-              : "border-edge bg-panel-2/40 opacity-50 pointer-events-none")
+              ? "bg-panel shadow-sm"
+              : "border-edge/50 bg-panel-2/40 opacity-50 pointer-events-none")
           }
+          style={isApproveDone ? { borderColor: "var(--card-accent)", borderWidth: "2px" } : {}}
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-4">
             <span
               className={
-                "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold " +
-                (isApproveDone ? "border-gold bg-gold/10 text-gold-dim" : "border-edge-strong text-faint")
+                "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold " +
+                (!isApproveDone ? "border-white/50 text-ink/40 bg-white/40" : "")
+              }
+              style={
+                isApproveDone 
+                  ? { backgroundColor: "var(--card-accent-tint)", borderColor: "var(--card-accent)", color: "var(--card-accent)" }
+                  : {}
               }
             >
               2
             </span>
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-ink">Deposit &amp; encrypt</h3>
-              <p className="mt-0.5 text-xs text-mute">
+              <h3 className="text-sm font-bold text-ink">Deposit &amp; encrypt</h3>
+              <p className="mt-1 text-xs text-ink/60">
                 Encrypts the allocation pool on-chain and deposits it into the campaign clone contract.
               </p>
               {isApproveDone && (
                 <button
                   onClick={handleFund}
                   disabled={fundMutation.isPending}
-                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-iris px-4 py-2 text-xs font-semibold text-white transition-all duration-150 hover:bg-iris-dim disabled:opacity-50"
+                  className="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition-all duration-200 shadow-sm disabled:opacity-50 hover:-translate-y-0.5"
+                  style={{ backgroundColor: "var(--card-accent)", color: "var(--card-accent-ink)" }}
                 >
                   {retryNotice
                     ? "Retrying encryption…"
@@ -298,23 +315,30 @@ export function StepFund({
       </div>
 
       {retryNotice && !errorMsg && (
-        <div className="flex items-center gap-2 rounded-lg border border-gold/40 bg-gold-tint/40 p-3.5 text-xs text-gold-dim">
-          <span className="h-3 w-3 shrink-0 animate-spin rounded-full border-2 border-gold-dim/30 border-t-gold-dim" />
+        <div className="flex items-center gap-3 rounded-[14px] border border-edge bg-panel-2 p-4 text-xs font-medium text-ink/80 shadow-xs">
+          <span 
+            className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-t-transparent" 
+            style={{ borderColor: "var(--card-accent)", borderTopColor: "transparent" }}
+          />
           {retryNotice}
         </div>
       )}
 
       {errorMsg && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-danger">
-          {errorMsg}
+        <div className="flex items-start gap-3 rounded-[14px] border border-danger/20 bg-danger/10 p-4 text-sm text-danger shadow-inner">
+          <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>
+            <p className="font-semibold mb-0.5">Transaction failed</p>
+            <p className="text-danger/80">{errorMsg}</p>
+          </div>
         </div>
       )}
 
-      <div className="flex flex-col gap-3 border-t border-edge pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-edge pt-6 mt-8 sm:flex-row sm:items-center sm:justify-between">
         <button
           onClick={onBack}
           disabled={isApprovePending || isApproveConfirming || fundMutation.isPending}
-          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-edge-strong px-4 py-2.5 text-sm font-medium text-mute transition-colors duration-150 hover:text-ink disabled:opacity-50"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-edge bg-panel px-6 py-3 text-sm font-medium text-ink transition-all duration-150 hover:bg-panel-2 disabled:opacity-50"
         >
           ← Back
         </button>

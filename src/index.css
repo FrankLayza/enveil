@@ -21,12 +21,12 @@
    Mono for on-chain data. Token NAMES are kept stable so components don't break. */
 @theme {
   /* ── Surfaces ── */
-  --color-bg: #e2e2df;            /* page canvas */
-  --color-panel: #ffffff;         /* surface (cards) */
-  --color-panel-2: #f7f7f4;       /* surface-soft */
-  --color-recessed: #d4d3cd;      /* surface-recessed (insets, tracks) */
-  --color-edge: #cfcec8;          /* border */
-  --color-edge-strong: #b4b2a9;   /* border-hover */
+  --color-bg: #e2e2df; /* page canvas */
+  --color-panel: #ffffff; /* surface (cards) */
+  --color-panel-2: #f7f7f4; /* surface-soft */
+  --color-recessed: #d4d3cd; /* surface-recessed (insets, tracks) */
+  --color-edge: #cfcec8; /* border */
+  --color-edge-strong: #b4b2a9; /* border-hover */
 
   /* ── Primary action = near-black ink ── */
   --color-iris: #1a1a18;
@@ -46,13 +46,13 @@
      Scoped accent for the marketing hero only — the app's primary action stays
      ink (--color-iris) and its product accent stays gold. Generates utilities
      bg-violet / text-violet-deep / border-violet-edge / etc. */
-  --color-violet: #7c3aed;        /* CTA fill, highlight */
-  --color-violet-hover: #6d28d9;  /* CTA hover */
-  --color-violet-deep: #5b21b6;   /* violet text on light */
-  --color-violet-tint: #ede9fe;   /* soft surface wash */
-  --color-violet-edge: #ddd6fe;   /* soft border */
-  --color-violet-line: #c4b5fd;   /* dashed connectors */
-  --color-violet-ink: #3a2a6b;    /* text on violet surfaces */
+  --color-violet: #7c3aed; /* CTA fill, highlight */
+  --color-violet-hover: #6d28d9; /* CTA hover */
+  --color-violet-deep: #5b21b6; /* violet text on light */
+  --color-violet-tint: #ede9fe; /* soft surface wash */
+  --color-violet-edge: #ddd6fe; /* soft border */
+  --color-violet-line: #c4b5fd; /* dashed connectors */
+  --color-violet-ink: #3a2a6b; /* text on violet surfaces */
 
   /* ── Status pairs (bg + text) ── */
   --color-success-bg: #eaf3de;
@@ -60,7 +60,7 @@
   --color-warning-bg: #faeeda;
   --color-warning-text: #633806;
   --color-danger-bg: #fcebeb;
-  --color-danger: #791f1f;        /* danger text (name kept for components) */
+  --color-danger: #791f1f; /* danger text (name kept for components) */
 
   /* legacy aliases (kept so existing components don't break) */
   --color-accent-cyan: #0891b2;
@@ -68,16 +68,17 @@
   --color-encrypted: #9a9890;
 
   /* ── Text ── */
-  --color-ink: #1a1a18;           /* text-primary */
-  --color-mute: #6b6a65;          /* text-secondary */
-  --color-faint: #9a9890;         /* text-tertiary */
+  --color-ink: #1a1a18; /* text-primary */
+  --color-mute: #6b6a65; /* text-secondary */
+  --color-faint: #9a9890; /* text-tertiary */
 
   --font-display: "Eudoxus Sans", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Eudoxus Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
   /* Wordmark face. Swap "Grotesk Grotesque" in here once a hosted/licensed copy
      of that font is added (see note); falls back to Eudoxus extrabold for now. */
-  --font-wordmark: "Grotesk Grotesque", "Eudoxus Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-wordmark:
+    "Grotesk Grotesque", "Eudoxus Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -99,7 +100,10 @@ body {
   background-color: var(--color-bg);
 
   /* Faint precision dot-grid for subtle blueprint depth (light). */
-  background-image: radial-gradient(rgba(0, 0, 0, 0.05) 0.9px, transparent 0.9px);
+  background-image: radial-gradient(
+    rgba(0, 0, 0, 0.05) 0.9px,
+    transparent 0.9px
+  );
   background-size: 26px 26px;
   background-position: -1px -1px;
 }
@@ -192,10 +196,17 @@ body {
    Scoped under `body.landing-cursor` — the Landing component toggles that class
    on mount/unmount, so /admin and /claim keep the normal system cursor. */
 body.landing-cursor {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='6' fill='none' stroke='%237c3aed' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='1.5' fill='%237c3aed'/%3E%3C/svg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='6' fill='none' stroke='%237c3aed' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='1.5' fill='%237c3aed'/%3E%3C/svg%3E")
+      12 12,
+    auto;
 }
-body.landing-cursor :is(a, button, [role="button"], label, summary, .hero-card) {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='14' cy='14' r='11' fill='%237c3aed' fill-opacity='0.12' stroke='%237c3aed' stroke-width='2'/%3E%3C/svg%3E") 14 14, pointer;
+body.landing-cursor
+  :is(a, button, [role="button"], label, summary, .hero-card) {
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='14' cy='14' r='11' fill='%237c3aed' fill-opacity='0.12' stroke='%237c3aed' stroke-width='2'/%3E%3C/svg%3E")
+      14 14,
+    pointer;
 }
 
 /* ── Motion & Custom Gradients ─────────────────────────────────────────── */
@@ -557,7 +568,11 @@ html.lenis {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--card-accent-tint), var(--color-edge));
+  background: linear-gradient(
+    135deg,
+    var(--card-accent-tint),
+    var(--color-edge)
+  );
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.1em;
@@ -623,7 +638,7 @@ html.lenis {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: #EAF3DE;
+  background: #eaf3de;
 }
 .feature-card-cta-content {
   display: flex;
@@ -664,7 +679,9 @@ html.lenis {
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
 }
 .feature-card-cta-primary:hover {
   transform: translateY(-2px);
@@ -674,14 +691,17 @@ html.lenis {
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
-  border: 1.5px solid color-mix(in srgb, var(--color-success-text) 35%, transparent);
+  border: 1.5px solid
+    color-mix(in srgb, var(--color-success-text) 35%, transparent);
   background: rgba(255, 255, 255, 0.5);
   color: var(--color-success-text);
   padding: 0.6rem 1.15rem;
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
 }
 .feature-card-cta-secondary:hover {
   transform: translateY(-2px);
@@ -697,7 +717,11 @@ html.lenis {
   align-items: flex-start;
   border-radius: 1.5rem;
   border: 1px solid var(--color-violet-edge);
-  background: linear-gradient(135deg, var(--color-violet-tint), var(--color-violet-edge));
+  background: linear-gradient(
+    135deg,
+    var(--color-violet-tint),
+    var(--color-violet-edge)
+  );
   padding: 2.25rem;
 }
 
@@ -728,6 +752,43 @@ html.lenis {
 }
 
 /* ── Responsive fine-tuning ── */
+@media (max-width: 767px) {
+  .features-section {
+    padding-top: 3.5rem;
+    padding-bottom: 3rem;
+    border-radius: 0 0 1.5rem 1.5rem;
+  }
+  .features-heading {
+    margin-bottom: 2.5rem;
+  }
+  .features-title {
+    font-size: 2rem;
+  }
+  .feature-card {
+    padding: 1.5rem;
+  }
+  .feature-card-title {
+    font-size: 1.15rem;
+  }
+  .feature-card-body {
+    font-size: 0.85rem;
+  }
+  .feature-card-image-wrap--tall {
+    min-height: 180px;
+  }
+  .feature-card-image-wrap--wide {
+    height: 180px;
+  }
+  .feature-card-image-wrap--medium {
+    height: 160px;
+  }
+  .feature-card-cipher {
+    display: none;
+  }
+  .feature-card-cta-title {
+    font-size: 1.2rem;
+  }
+}
 @media (max-width: 767px) {
   .features-section {
     padding-top: 3.5rem;

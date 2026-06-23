@@ -9,6 +9,10 @@ import {
   recipientNoun,
 } from "@/lib/recipients";
 import { CampaignTypeSelector } from "@/components/admin/CampaignTypeSelector";
+import { ScheduleBuilder } from "@/components/admin/ScheduleBuilder";
+import type { VestingSchedule } from "@/lib/vesting";
+
+type SchedulePartial = Omit<VestingSchedule, "startTs">;
 
 let _seq = 0;
 const newId = () => `r${_seq++}`;
@@ -24,6 +28,9 @@ export function StepRecipients({
   setCampaignType,
   campaignName,
   setCampaignName,
+  schedule,
+  setSchedule,
+  startTs,
   onNext,
 }: {
   recipients: Recipient[];
@@ -32,6 +39,9 @@ export function StepRecipients({
   setCampaignType: (t: CampaignType) => void;
   campaignName: string;
   setCampaignName: (v: string) => void;
+  schedule: SchedulePartial;
+  setSchedule: (s: SchedulePartial) => void;
+  startTs: number;
   onNext: () => void;
 }) {
   const noun = recipientNoun(campaignType);
@@ -93,7 +103,7 @@ export function StepRecipients({
           value={campaignName}
           onChange={(e) => setCampaignName(e.target.value)}
           placeholder="e.g. Q2 Contributor Payroll"
-          className="w-full rounded-lg border border-edge-strong bg-transparent px-3 py-2 text-sm text-ink placeholder:text-faint transition-colors duration-150 focus:border-ink focus:outline-none focus:ring-2 focus:ring-violet/30"
+          className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
         />
       </div>
 
@@ -111,10 +121,10 @@ export function StepRecipients({
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         className={
-          "flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 text-center transition-colors duration-150 " +
+          "flex cursor-pointer flex-col items-center justify-center rounded-[18px] border-2 border-dashed px-6 py-12 text-center transition-all duration-150 " +
           (dragging
-            ? "border-gold bg-gold/5"
-            : "border-edge-strong hover:border-gold/60 hover:bg-panel-2")
+            ? "border-(--card-accent) bg-(--card-accent-tint)/30 shadow-xs"
+            : "border-edge bg-panel-2/60 hover:border-(--card-accent)/50 hover:bg-panel-2 hover:shadow-xs")
         }
       >
         <input
@@ -137,8 +147,8 @@ export function StepRecipients({
       </label>
 
       {/* Table */}
-      <div className="mt-6 overflow-hidden rounded-xl border border-edge bg-panel">
-        <div className="hidden sm:grid grid-cols-[1fr_170px_120px_40px] items-center gap-3 border-b border-edge bg-panel-2 px-4 py-2.5">
+      <div className="mt-6 overflow-hidden rounded-xl border border-edge bg-panel shadow-sm">
+        <div className="hidden sm:grid grid-cols-[1fr_170px_120px_40px] items-center gap-3 border-b border-edge bg-panel-2 px-4 py-3">
           <span className="text-xs font-medium uppercase tracking-wider text-faint">
             Wallet address
           </span>
@@ -170,50 +180,56 @@ export function StepRecipients({
             return (
               <div
                 key={r.id}
-                className="flex flex-col gap-3 border-b border-edge px-4 py-4 last:border-b-0 sm:grid sm:grid-cols-[1fr_170px_120px_40px] sm:items-start sm:gap-3 sm:py-3"
+                className="flex flex-col gap-3 border-b border-edge/60 px-4 py-4 last:border-b-0 sm:grid sm:grid-cols-[1fr_170px_120px_40px] sm:items-start sm:gap-3 sm:py-3 transition-colors hover:bg-panel-2/30"
               >
                 <div className="w-full">
-                  <input
-                    value={r.address}
-                    onChange={(e) => editRow(r.id, "address", e.target.value)}
-                    placeholder="0x recipient wallet address"
-                    spellCheck={false}
-                    className={
-                      "w-full rounded-md border bg-panel px-3 py-2 font-mono text-sm text-ink placeholder:text-faint transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gold/40 " +
-                      (addrIssue
-                        ? "border-danger/60 focus:border-danger"
-                        : "border-edge-strong focus:border-ink")
-                    }
-                  />
-                  {addrIssue && (
-                    <span className="mt-1 block text-xs text-danger">{addrIssue.message}</span>
-                  )}
+                    <input
+                      value={r.address}
+                      onChange={(e) => editRow(r.id, "address", e.target.value)}
+                      placeholder="0x recipient wallet address"
+                      spellCheck={false}
+                      className={
+                        "w-full rounded-[10px] border px-3 py-2.5 font-mono text-sm transition-all duration-200 focus:outline-none focus:ring-4 " +
+                        (addrIssue
+                          ? "border-danger/40 bg-danger/5 text-danger placeholder:text-danger/40 focus:border-danger focus:ring-danger/20"
+                          : "border-edge bg-panel-2/65 text-ink placeholder:text-mute/50 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:ring-(--card-accent)/10")
+                      }
+                    />
+                    {addrIssue && (
+                      <span className="mt-1.5 flex items-start gap-1.5 text-[11px] font-semibold text-danger">
+                        <svg className="shrink-0 mt-0.5" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        {addrIssue.message}
+                      </span>
+                    )}
                 </div>
                 <div className="w-full">
-                  <input
-                    value={r.label ?? ""}
-                    onChange={(e) => editRow(r.id, "label", e.target.value)}
-                    placeholder="Label (optional)"
-                    className="w-full rounded-md border border-edge-strong bg-panel px-3 py-2 text-sm text-ink placeholder:text-faint transition-colors duration-150 focus:border-ink focus:outline-none focus:ring-2 focus:ring-gold/40"
-                  />
+                    <input
+                      value={r.label ?? ""}
+                      onChange={(e) => editRow(r.id, "label", e.target.value)}
+                      placeholder="Label (optional)"
+                      className="w-full rounded-[10px] border border-edge bg-panel-2/65 px-3 py-2.5 text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10"
+                    />
                 </div>
                 <div className="flex items-start gap-2.5 sm:block sm:text-right">
                   <div className="flex-1 sm:w-auto">
-                    <input
-                      value={r.amount}
-                      onChange={(e) => editRow(r.id, "amount", e.target.value)}
-                      placeholder="Amount"
-                      inputMode="decimal"
-                      className={
-                        "w-full sm:w-32 rounded-md border bg-panel px-3 py-2 text-left sm:text-right font-mono text-sm font-medium text-ink placeholder:text-faint transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gold/40 " +
-                        (amtIssue
-                          ? "border-danger/60 focus:border-danger"
-                          : "border-edge-strong focus:border-ink")
-                      }
-                    />
-                    {amtIssue && (
-                      <span className="mt-1 block text-xs text-danger text-left sm:text-right">{amtIssue.message}</span>
-                    )}
+                      <input
+                        value={r.amount}
+                        onChange={(e) => editRow(r.id, "amount", e.target.value)}
+                        placeholder="Amount"
+                        inputMode="decimal"
+                        className={
+                          "w-full sm:w-32 rounded-[10px] border px-3 py-2.5 text-left sm:text-right font-mono text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-4 " +
+                          (amtIssue
+                            ? "border-danger/40 bg-danger/5 text-danger placeholder:text-danger/40 focus:border-danger focus:ring-danger/20"
+                            : "border-edge bg-panel-2/65 text-ink placeholder:text-mute/50 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:ring-(--card-accent)/10")
+                        }
+                      />
+                      {amtIssue && (
+                        <span className="mt-1.5 flex items-start gap-1.5 text-[11px] font-semibold text-danger sm:justify-end">
+                          <svg className="shrink-0 mt-0.5" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          <span className="text-left sm:text-right">{amtIssue.message}</span>
+                        </span>
+                      )}
                   </div>
                   <button
                     onClick={() => removeRow(r.id)}
@@ -246,19 +262,32 @@ export function StepRecipients({
         </button>
       )}
 
+      {/* Vesting-only: unlock schedule builder. Splits each recipient's total
+          across dated, confidential tranches. */}
+      {campaignType === "vesting" && (
+        <div className="mt-6">
+          <ScheduleBuilder
+            schedule={schedule}
+            onChange={setSchedule}
+            recipients={recipients.filter((r) => (issuesById.get(r.id) ?? []).length === 0)}
+            startTs={startTs}
+          />
+        </div>
+      )}
+
       {/* Footer: total + advance */}
       <div className="mt-6 flex flex-col gap-4 border-t border-edge pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <p className="text-sm text-mute text-center sm:text-left">
           <span className="font-mono font-medium text-ink">{validCount}</span>{" "}
           {noun}{validCount === 1 ? "" : "s"}
-          <span className="mx-2 text-faint">·</span>
-          <span className="font-mono font-medium text-gold-dim">
+          <span className="mx-2 text-ink/30">·</span>
+          <span className="font-mono font-bold" style={{ color: "var(--card-accent)" }}>
             {formatTokens(total)}
           </span>{" "}
           tokens total
           {validCount < recipients.length && (
-            <span className="mt-1 block text-danger sm:mt-0 sm:inline">
-              <span className="hidden sm:inline"> · </span>
+            <span className="mt-1 flex items-center gap-1.5 text-danger sm:mt-0 sm:inline-flex font-medium bg-danger/10 px-2.5 py-0.5 rounded-full">
+              <span className="hidden sm:inline-block mr-1 text-danger/40">•</span>
               {recipients.length - validCount} need fixing
             </span>
           )}
@@ -266,7 +295,8 @@ export function StepRecipients({
         <button
           onClick={onNext}
           disabled={!canAdvance}
-          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-iris px-5 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-iris-dim disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-md transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 hover:-translate-y-0.5"
+          style={{ backgroundColor: "var(--card-accent)", color: "var(--card-accent-ink)" }}
         >
           Next: create campaign <ArrowIcon />
         </button>

@@ -14,13 +14,20 @@ export function App() {
   const isLanding = pathname === "/";
 
   return (
-    <ReactLenis root options={{ lerp: 0.085, smoothWheel: true, wheelMultiplier: 0.95 }}>
+    <ReactLenis
+      root
+      options={{ lerp: 0.085, smoothWheel: true, wheelMultiplier: 0.95 }}
+    >
       <div className="min-h-full bg-bg text-ink noise-overlay mesh-gradient-bg">
         <SpeedInsights />
 
         {isLanding ? <MarketingNav /> : <AppNav pathname={pathname} />}
 
-        <main className={isLanding ? "" : "mx-auto max-w-6xl px-4 pb-16 pt-3 sm:px-6"}>
+        <main
+          className={
+            isLanding ? "" : "mx-auto max-w-6xl px-4 pb-16 pt-3 sm:px-6"
+          }
+        >
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/admin" element={<Dashboard />} />
@@ -44,10 +51,15 @@ function Wordmark({ light }: { light?: boolean }) {
       className="flex items-center gap-1.5 hover:opacity-80"
       style={{
         color: light ? "#fff" : "var(--color-ink)",
-        transition: "color 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.15s ease",
+        transition:
+          "color 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.15s ease",
       }}
     >
-      <img src="/illustrations/enveil-logo-2.svg" alt="Enveil Logo" className="h-5 w-auto" />
+      <img
+        src="/illustrations/enveil-logo-2.svg"
+        alt="Enveil Logo"
+        className="h-5 w-auto"
+      />
       <span className="font-wordmark text-base lowercase tracking-wider sm:text-lg">
         enveil
       </span>
@@ -93,12 +105,18 @@ function MarketingNav() {
           width: scrolled ? "300px" : "100%",
           maxWidth: scrolled ? "300px" : "72rem",
           borderRadius: scrolled ? "9999px" : "0px",
-          padding: scrolled ? "0.45rem 0.5rem 0.45rem 1.25rem" : "1.25rem 1.5rem",
+          padding: scrolled
+            ? "0.45rem 0.5rem 0.45rem 1.25rem"
+            : "1.25rem 1.5rem",
           background: scrolled ? "rgba(255, 255, 255, 0.72)" : "transparent",
-          border: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid transparent",
+          border: scrolled
+            ? "1px solid rgba(0, 0, 0, 0.08)"
+            : "1px solid transparent",
           backdropFilter: scrolled ? "blur(14px)" : "none",
           WebkitBackdropFilter: scrolled ? "blur(14px)" : "none",
-          boxShadow: scrolled ? "0 12px 30px -10px rgba(0, 0, 0, 0.12), 0 4px 12px -5px rgba(0, 0, 0, 0.05)" : "none",
+          boxShadow: scrolled
+            ? "0 12px 30px -10px rgba(0, 0, 0, 0.12), 0 4px 12px -5px rgba(0, 0, 0, 0.05)"
+            : "none",
           transition: "all 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
           pointerEvents: "auto",
         }}
@@ -129,7 +147,9 @@ function MarketingNav() {
               className="link-rise py-1 text-sm font-medium transition-colors duration-150 whitespace-nowrap"
               style={{ color: "rgba(255, 255, 255, 0.78)" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255, 255, 255, 0.78)")}
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "rgba(255, 255, 255, 0.78)")
+              }
             >
               {s.label}
             </button>
@@ -144,7 +164,9 @@ function MarketingNav() {
             style={{
               padding: scrolled ? "0.45rem 1.1rem" : "0.6rem 1.25rem",
               fontSize: scrolled ? "0.825rem" : "0.875rem",
-              boxShadow: scrolled ? "0 4px 12px rgba(124,58,237,0.2)" : "0 8px 20px rgba(124,58,237,0.25)",
+              boxShadow: scrolled
+                ? "0 4px 12px rgba(124,58,237,0.2)"
+                : "0 8px 20px rgba(124,58,237,0.25)",
               transition: "all 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >
@@ -192,8 +214,20 @@ function MarketingNav() {
                   color: "#fff",
                 }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                >
+                  {menuOpen ? (
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  ) : (
+                    <path d="M3 6h18M3 12h18M3 18h18" />
+                  )}
                 </svg>
               </button>
             </div>

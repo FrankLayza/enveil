@@ -138,10 +138,13 @@ export function StepCreate({
               onChange={(e) => setTokenAddress(e.target.value)}
               placeholder="0x..."
               spellCheck={false}
-              className="w-full rounded-lg border border-edge-strong bg-panel px-3 py-2.5 text-sm font-mono text-ink placeholder:text-faint transition-colors duration-150 focus:border-ink focus:outline-none focus:ring-2 focus:ring-gold/40"
+              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 font-mono text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
             />
             {isMockToken && (
-              <span className="absolute right-3 top-2.5 rounded bg-gold/15 px-1.5 py-0.5 text-[10px] font-medium text-gold-dim">
+              <span 
+                className="absolute right-3 top-3 rounded-md px-2 py-1 text-[10px] font-bold"
+                style={{ backgroundColor: "var(--card-accent-tint)", color: "var(--card-accent)" }}
+              >
                 cMockToken Faucet
               </span>
             )}
@@ -158,7 +161,7 @@ export function StepCreate({
               type="datetime-local"
               value={startStr}
               onChange={(e) => setStartStr(e.target.value)}
-              className="w-full rounded-lg border border-edge-strong bg-panel px-3 py-2.5 text-sm text-ink transition-colors duration-150 focus:border-ink focus:outline-none focus:ring-2 focus:ring-gold/40"
+              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
             />
           </div>
           <div>
@@ -169,7 +172,7 @@ export function StepCreate({
               type="datetime-local"
               value={endStr}
               onChange={(e) => setEndStr(e.target.value)}
-              className="w-full rounded-lg border border-edge-strong bg-panel px-3 py-2.5 text-sm text-ink transition-colors duration-150 focus:border-ink focus:outline-none focus:ring-2 focus:ring-gold/40"
+              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
             />
           </div>
         </div>
@@ -180,7 +183,8 @@ export function StepCreate({
             type="checkbox"
             checked={canExtendClaimWindow}
             onChange={(e) => setCanExtendClaimWindow(e.target.checked)}
-            className="h-4 w-4 rounded border-edge-strong accent-iris"
+            className="h-5 w-5 rounded border-edge"
+            style={{ accentColor: "var(--card-accent)" }}
           />
           <div className="text-sm">
             <p className="font-medium text-ink">Allow claim window extension</p>
@@ -198,11 +202,11 @@ export function StepCreate({
               type="text"
               readOnly
               value={userSalt}
-              className="flex-1 rounded-lg border border-edge-strong bg-panel-2 px-3 py-2 text-xs font-mono text-mute focus:outline-none"
+              className="flex-1 rounded-xl border border-edge bg-panel-2/60 px-4 py-3 text-xs font-mono text-mute focus:outline-none"
             />
             <button
               onClick={generateNewSalt}
-              className="rounded-lg border border-edge-strong px-3 py-2 text-xs font-medium text-mute hover:bg-panel-2 hover:text-ink"
+              className="rounded-xl border border-edge bg-panel px-4 py-3 text-sm font-medium text-ink hover:bg-panel-2 hover:border-edge-strong transition-all duration-150"
             >
               Regen
             </button>
@@ -211,16 +215,20 @@ export function StepCreate({
       </div>
 
       {errorMsg && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-danger">
-          {errorMsg}
+        <div className="flex items-start gap-3 rounded-[14px] border border-danger/20 bg-danger/10 p-4 text-sm text-danger shadow-inner">
+          <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>
+            <p className="font-semibold mb-0.5">Deployment failed</p>
+            <p className="text-danger/80">{errorMsg}</p>
+          </div>
         </div>
       )}
 
-      <div className="flex flex-col-reverse gap-3 border-t border-edge pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+      <div className="flex flex-col-reverse gap-3 border-t border-edge pt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-0 mt-8">
         <button
           onClick={onBack}
           disabled={createMutation.isPending}
-          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-edge-strong px-4 py-2.5 text-sm font-medium text-mute transition-colors duration-150 hover:text-ink disabled:opacity-50"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-edge bg-panel px-6 py-3 text-sm font-medium text-ink transition-all duration-150 hover:bg-panel-2 disabled:opacity-50"
         >
           ← Back
         </button>
@@ -228,7 +236,8 @@ export function StepCreate({
         <button
           onClick={handleDeploy}
           disabled={createMutation.isPending || !isConnected}
-          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-iris px-5 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-iris-dim disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-md transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 hover:-translate-y-0.5"
+          style={{ backgroundColor: "var(--card-accent)", color: "var(--card-accent-ink)" }}
         >
           {createMutation.isPending ? "Deploying..." : "Deploy campaign"}
         </button>

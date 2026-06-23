@@ -7,16 +7,24 @@ import { StepCreate } from "@/components/admin/StepCreate";
 import { StepFund } from "@/components/admin/StepFund";
 import { StepAuthorize } from "@/components/admin/StepAuthorize";
 import { StepDeliver } from "@/components/admin/StepDeliver";
+import { StepVesting } from "@/components/admin/StepVesting";
 import type { Recipient, CampaignType } from "@/lib/recipients";
 import { totalRawUnits } from "@/lib/recipients";
+import { DEFAULT_SCHEDULE, type VestingSchedule, type VestingRecipientDelivery } from "@/lib/vesting";
 import { saveCampaign } from "@/lib/campaigns";
 
-const STEPS: StepDef[] = [
+const STANDARD_STEPS: StepDef[] = [
   { id: 1, label: "Recipients" },
   { id: 2, label: "Create" },
   { id: 3, label: "Fund" },
   { id: 4, label: "Authorize" },
   { id: 5, label: "Deliver" },
+];
+
+const VESTING_STEPS: StepDef[] = [
+  { id: 1, label: "Recipients" },
+  { id: 2, label: "Deploy" },
+  { id: 3, label: "Deliver" },
 ];
 
 export function CampaignWizard() {
@@ -27,6 +35,11 @@ export function CampaignWizard() {
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [campaignType, setCampaignType] = useState<CampaignType>("payroll");
   const [campaignName, setCampaignName] = useState("");
+  const [schedule, setSchedule] = useState<Omit<VestingSchedule, "startTs">>(DEFAULT_SCHEDULE);
+  const [vestingDeliveries, setVestingDeliveries] = useState<VestingRecipientDelivery[]>([]);
+
+  const isVesting = campaignType === "vesting";
+  const STEPS = isVesting ? VESTING_STEPS : STANDARD_STEPS;
 
   const [tokenAddress, setTokenAddress] = useState(
     import.meta.env.VITE_MOCK_TOKEN_ADDRESS || "",
@@ -61,6 +74,8 @@ export function CampaignWizard() {
     setCampaignName("");
     setCampaignAddress("");
     setAuthorizations([]);
+    setSchedule(DEFAULT_SCHEDULE);
+    setVestingDeliveries([]);
     const now = Math.floor(Date.now() / 1000);
     setUserSalt(`0x${now.toString(16).padStart(64, "0")}`);
     setStartTimestamp(now + 120);
@@ -91,6 +106,64 @@ export function CampaignWizard() {
     setCurrent(3);
   };
 
+  // Vesting: many tranche clones are deployed. We store the FIRST as the
+  // dashboard-representative campaign and keep the full per-recipient deliveries
+  // for the deliver step + claim links.
+  const handleVestingDeployed = (
+    deliveries: VestingRecipientDelivery[],
+    firstCampaign: string,
+  ) => {
+    if (adminAddress && firstCampaign) {
+      saveCampaign({
+        address: firstCampaign.toLowerCase(),
+        name: campaignName.trim(),
+        campaignType,
+        tokenAddress,
+        totalRecipients: recipients.length,
+        startTimestamp,
+        endTimestamp,
+        createdAt: Date.now(),
+        admin: adminAddress.toLowerCase(),
+      });
+    }
+    setVestingDeliveries(deliveries);
+    setCampaignAddress(firstCampaign);
+    setCurrent(3);
+  };
+
+  const getTheme = () => {
+    switch (campaignType) {
+      case "investor":
+        return {
+          "--card-bg": "#DFD1F4",
+          "--card-accent": "var(--color-violet)",
+          "--card-accent-tint": "var(--color-violet-tint)",
+          "--card-accent-ink": "#ffffff",
+        } as React.CSSProperties;
+      case "payroll":
+        return {
+          "--card-bg": "#DFC9C0",
+          "--card-accent": "var(--color-gold)",
+          "--card-accent-tint": "var(--color-gold-tint)",
+          "--card-accent-ink": "#3D2E00",
+        } as React.CSSProperties;
+      case "vesting":
+        return {
+          "--card-bg": "#CFE8DD",
+          "--card-accent": "#059669",
+          "--card-accent-tint": "#d1fae5",
+          "--card-accent-ink": "#ffffff",
+        } as React.CSSProperties;
+      default:
+        return {
+          "--card-bg": "#DFF3F6",
+          "--card-accent": "#0891b2",
+          "--card-accent-tint": "#e0f7fa",
+          "--card-accent-ink": "#ffffff",
+        } as React.CSSProperties;
+    }
+  };
+
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-6">
@@ -116,7 +189,10 @@ export function CampaignWizard() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-edge bg-panel p-5 shadow-sm sm:p-8">
+      <div 
+        className="rounded-[24px] border border-edge bg-panel p-5 shadow-lg shadow-black/5 transition-colors duration-500 sm:p-8 relative overflow-hidden"
+        style={getTheme()}
+      >
         <div className="mb-8">
           <Stepper steps={STEPS} current={current} />
         </div>
@@ -129,11 +205,40 @@ export function CampaignWizard() {
             setCampaignType={setCampaignType}
             campaignName={campaignName}
             setCampaignName={setCampaignName}
+            schedule={schedule}
+            setSchedule={setSchedule}
+            startTs={startTimestamp}
             onNext={() => setCurrent(2)}
           />
         )}
 
-        {current === 2 && (
+        {/* Vesting branches the middle of the wizard into a single deploy
+            orchestrator; standard campaigns keep the create→fund→authorize path. */}
+        {isVesting && current === 2 && (
+          <StepVesting
+            tokenAddress={tokenAddress}
+            recipients={recipients}
+            schedule={schedule}
+            startTs={startTimestamp}
+            canExtendClaimWindow={canExtendClaimWindow}
+            endTimestamp={endTimestamp}
+            onSuccess={handleVestingDeployed}
+            onBack={() => setCurrent(1)}
+          />
+        )}
+
+        {isVesting && current === 3 && (
+          <StepDeliver
+            tokenAddress={tokenAddress}
+            campaignAddress={campaignAddress}
+            authorizations={[]}
+            vestingDeliveries={vestingDeliveries}
+            campaignType={campaignType}
+            onReset={handleReset}
+          />
+        )}
+
+        {!isVesting && current === 2 && (
           <StepCreate
             tokenAddress={tokenAddress}
             setTokenAddress={setTokenAddress}
@@ -150,7 +255,7 @@ export function CampaignWizard() {
           />
         )}
 
-        {current === 3 && (
+        {!isVesting && current === 3 && (
           <StepFund
             tokenAddress={tokenAddress}
             campaignAddress={campaignAddress}
@@ -164,7 +269,7 @@ export function CampaignWizard() {
           />
         )}
 
-        {current === 4 && (
+        {!isVesting && current === 4 && (
           <StepAuthorize
             campaignAddress={campaignAddress}
             recipients={recipients}
@@ -176,7 +281,7 @@ export function CampaignWizard() {
           />
         )}
 
-        {current === 5 && (
+        {!isVesting && current === 5 && (
           <StepDeliver
             tokenAddress={tokenAddress}
             campaignAddress={campaignAddress}
@@ -187,7 +292,7 @@ export function CampaignWizard() {
         )}
       </div>
 
-      {current === 5 && (
+      {current === STEPS.length && (
         <div className="mt-6 text-center">
           <button
             onClick={() => navigate("/admin")}
