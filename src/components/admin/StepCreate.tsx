@@ -138,7 +138,7 @@ export function StepCreate({
               onChange={(e) => setTokenAddress(e.target.value)}
               placeholder="0x..."
               spellCheck={false}
-              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 font-mono text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
+              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 font-mono text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus-visible:outline-(--card-accent) focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
             />
             {isMockToken && (
               <span 
@@ -161,7 +161,7 @@ export function StepCreate({
               type="datetime-local"
               value={startStr}
               onChange={(e) => setStartStr(e.target.value)}
-              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
+              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus-visible:outline-(--card-accent) focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
             />
           </div>
           <div>
@@ -172,7 +172,7 @@ export function StepCreate({
               type="datetime-local"
               value={endStr}
               onChange={(e) => setEndStr(e.target.value)}
-              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
+              className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus-visible:outline-(--card-accent) focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
             />
           </div>
         </div>

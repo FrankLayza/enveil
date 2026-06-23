@@ -14,8 +14,14 @@ import type { VestingSchedule } from "@/lib/vesting";
 
 type SchedulePartial = Omit<VestingSchedule, "startTs">;
 
+// Unique row id. Must NOT be a module-level counter — Vite HMR resets it to 0,
+// so newly added rows would reuse ids (r0, r1…) already held in parent state,
+// producing duplicate React keys (typed values render against the wrong row).
 let _seq = 0;
-const newId = () => `r${_seq++}`;
+const newId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? `r-${crypto.randomUUID()}`
+    : `r-${Date.now().toString(36)}-${_seq++}`;
 
 /**
  * Step 1 — Recipients. CSV dropzone + editable table + live total.
@@ -103,7 +109,7 @@ export function StepRecipients({
           value={campaignName}
           onChange={(e) => setCampaignName(e.target.value)}
           placeholder="e.g. Q2 Contributor Payroll"
-          className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
+          className="w-full rounded-xl border border-edge bg-panel-2 px-4 py-3 text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus-visible:outline-(--card-accent) focus:ring-4 focus:ring-(--card-accent)/10 shadow-xs"
         />
       </div>
 
@@ -191,8 +197,8 @@ export function StepRecipients({
                       className={
                         "w-full rounded-[10px] border px-3 py-2.5 font-mono text-sm transition-all duration-200 focus:outline-none focus:ring-4 " +
                         (addrIssue
-                          ? "border-danger/40 bg-danger/5 text-danger placeholder:text-danger/40 focus:border-danger focus:ring-danger/20"
-                          : "border-edge bg-panel-2/65 text-ink placeholder:text-mute/50 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:ring-(--card-accent)/10")
+                          ? "border-danger/40 bg-danger/5 text-danger placeholder:text-danger/40 focus:border-danger focus-visible:outline-danger focus:ring-danger/20"
+                          : "border-edge bg-panel-2/65 text-ink placeholder:text-mute/50 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus-visible:outline-(--card-accent) focus:ring-(--card-accent)/10")
                       }
                     />
                     {addrIssue && (
@@ -207,7 +213,7 @@ export function StepRecipients({
                       value={r.label ?? ""}
                       onChange={(e) => editRow(r.id, "label", e.target.value)}
                       placeholder="Label (optional)"
-                      className="w-full rounded-[10px] border border-edge bg-panel-2/65 px-3 py-2.5 text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus:ring-4 focus:ring-(--card-accent)/10"
+                      className="w-full rounded-[10px] border border-edge bg-panel-2/65 px-3 py-2.5 text-sm text-ink placeholder:text-mute/50 transition-all duration-150 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:outline-none focus-visible:outline-(--card-accent) focus:ring-4 focus:ring-(--card-accent)/10"
                     />
                 </div>
                 <div className="flex items-start gap-2.5 sm:block sm:text-right">
@@ -220,8 +226,8 @@ export function StepRecipients({
                         className={
                           "w-full sm:w-32 rounded-[10px] border px-3 py-2.5 text-left sm:text-right font-mono text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-4 " +
                           (amtIssue
-                            ? "border-danger/40 bg-danger/5 text-danger placeholder:text-danger/40 focus:border-danger focus:ring-danger/20"
-                            : "border-edge bg-panel-2/65 text-ink placeholder:text-mute/50 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus:ring-(--card-accent)/10")
+                            ? "border-danger/40 bg-danger/5 text-danger placeholder:text-danger/40 focus:border-danger focus-visible:outline-danger focus:ring-danger/20"
+                            : "border-edge bg-panel-2/65 text-ink placeholder:text-mute/50 hover:border-edge-strong focus:border-(--card-accent) focus:bg-panel focus-visible:outline-(--card-accent) focus:ring-(--card-accent)/10")
                         }
                       />
                       {amtIssue && (
