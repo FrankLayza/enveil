@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { Reveal } from "@/components/Reveal";
 import { ConnectButton } from "@/components/ConnectButton";
-import { StatCard } from "@/components/admin/StatCard";
+import { DashboardMetrics } from "@/components/admin/DashboardMetrics";
 import { CampaignCard } from "@/components/admin/CampaignCard";
 import { useMyCampaigns, useCampaignClaimCounts } from "@/lib/useCampaignAnalytics";
 
@@ -76,11 +76,24 @@ export function Dashboard() {
       ) : isLoading ? (
         /* Loading skeletons */
         <div className="space-y-8">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {/* Mobile Loading Skeleton */}
+          <div className="grid grid-cols-2 gap-4 md:hidden">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="rounded-2xl border border-violet-edge/40 bg-panel p-5">
                 <div className="h-3 w-16 animate-pulse rounded bg-violet-tint/70" />
                 <div className="mt-4 h-8 w-12 animate-pulse rounded bg-violet-tint/70" />
+              </div>
+            ))}
+          </div>
+          {/* Desktop Loading Skeleton */}
+          <div className="hidden md:flex w-full items-center justify-between rounded-2xl border border-edge bg-panel py-6 shadow-sm divide-x divide-edge/60 animate-pulse">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex-1 px-6 flex items-center gap-4">
+                <div className="h-11 w-11 shrink-0 rounded-full bg-violet-tint/40" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-3 w-16 rounded bg-violet-tint/50" />
+                  <div className="h-6 w-12 rounded bg-violet-tint/50" />
+                </div>
               </div>
             ))}
           </div>
@@ -162,20 +175,12 @@ export function Dashboard() {
       ) : (
         /* Populated */
         <div className="space-y-8">
-          <Reveal.Stagger className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Reveal.Item>
-              <StatCard label="Campaigns" value={list.length} />
-            </Reveal.Item>
-            <Reveal.Item>
-              <StatCard label="Active" value={activeCount} />
-            </Reveal.Item>
-            <Reveal.Item>
-              <StatCard label="Total claims" value={totalClaims} />
-            </Reveal.Item>
-            <Reveal.Item>
-              <StatCard label="Avg claim rate" value={avgRate === null ? "—" : `${avgRate}%`} />
-            </Reveal.Item>
-          </Reveal.Stagger>
+          <DashboardMetrics
+            campaignsCount={list.length}
+            activeCount={activeCount}
+            totalClaims={totalClaims}
+            avgRate={avgRate}
+          />
 
           <Reveal.Stagger className="space-y-3">
             {list.map((c) => (
