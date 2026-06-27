@@ -50,8 +50,8 @@ export function Footer() {
 
       </div>
 
-      {}
-      <div className="mt-10 overflow-hidden px-4 sm:px-6">
+      {/* ── Giant background footer wordmark ───────────────────────── */}
+      <div className="mt-20 overflow-hidden px-4 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <span className="footer-wordmark block">enveil</span>
         </div>

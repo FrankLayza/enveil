@@ -135,7 +135,7 @@ export function CampaignCard({
   return (
     <div
       onClick={() => navigate(`/admin/c/${address}`)}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-edge bg-panel transition-all duration-300 hover:-translate-y-1 hover:border-violet-edge hover:shadow-xl hover:shadow-violet/5 cursor-pointer h-full"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-edge bg-panel transform-gpu transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-violet-edge hover:shadow-xl hover:shadow-violet/5 cursor-pointer h-full"
       style={{
         ["--card-accent" as any]: theme.accent,
         ["--card-accent-tint" as any]: theme.bg,
@@ -169,7 +169,7 @@ export function CampaignCard({
         )}
 
         {}
-        <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md bg-ink/75 px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-xs">
+        <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md bg-ink/85 px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-white">
           {totalRecipients !== undefined ? (
             <>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -193,12 +193,12 @@ export function CampaignCard({
 
         {}
         <div
-          className={`absolute right-3 top-3 rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider backdrop-blur-xs ` +
+          className={`absolute right-3 top-3 rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ` +
             (status === "active"
-              ? "bg-success-bg/90 text-success-text border-success-text/20"
+              ? "bg-success-bg text-success-text border-success-text/20"
               : status === "ended"
-                ? "bg-danger-bg/90 text-danger border-danger/20"
-                : "bg-warning-bg/90 text-warning-text border-warning-text/20")
+                ? "bg-danger-bg text-danger border-danger/20"
+                : "bg-warning-bg text-warning-text border-warning-text/20")
           }
         >
           {status}

@@ -214,6 +214,13 @@ export function Dashboard() {
           />
 
           <Reveal.Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Background refetch in progress (e.g. just created a campaign) —
+                lead with a skeleton so the incoming campaign has a placeholder. */}
+            {isFetching && (
+              <div className="animate-pulse">
+                <CampaignCardSkeleton />
+              </div>
+            )}
             {list.map((c) => (
               <Reveal.Item key={c.address}>
                 <CampaignCard campaign={c} claimed={byAddress[c.address.toLowerCase()]} />

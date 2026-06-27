@@ -12,6 +12,7 @@ import {
 } from "@tokenops/sdk/fhe-airdrop/react";
 import { formatTokens, shortAddress, TOKEN_DECIMALS } from "@/lib/recipients";
 import { ConfidentialBalance } from "@/components/ConfidentialBalance";
+import { Shield } from "@/components/Shield";
 import { VestingClaim, type VestingPayload } from "@/components/VestingClaim";
 import { decodeClaimPayload, isVestingPayload } from "@/lib/claimLink";
 import { useCheckRecipient, useCampaignName } from "@/lib/registry";
@@ -40,6 +41,7 @@ const LOW_ETH_THRESHOLD = 5_000_000_000_000_000n;
 
 type ClaimPageState =
   | "pre-connect"
+  | "no-link"
   | "checking"
   | "confirmed-no-payload"
   | "claim-found"
@@ -406,8 +408,10 @@ export function Claim() {
     // Legacy hash link — payload loaded directly, skip registry
     if (hashLinkLoaded && isLoaded) return "legacy-loaded";
 
-    // No campaign address at all — show generic pre-connect
-    if (!campaignAddress) return "pre-connect";
+    // No campaign address at all. If the wallet is already connected, the user
+    // just has no claim link loaded — guide them to paste/upload one rather than
+    // showing a (dead) connect button. Otherwise prompt to connect first.
+    if (!campaignAddress) return isConnected ? "no-link" : "pre-connect";
 
     // Wallet not connected
     if (!isConnected) return "pre-connect";
@@ -493,7 +497,7 @@ export function Claim() {
       )}
 
       {/* ── State 2a: Confirmed, no payload yet ───────────────────── */}
-      {pageState === "confirmed-no-payload" && (
+      {(pageState === "confirmed-no-payload" || pageState === "no-link") && (
         <div className="space-y-6 animate-step-in">
           <div>
             <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
@@ -501,20 +505,40 @@ export function Claim() {
             </h1>
           </div>
 
-          {/* Confirmation badge */}
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5" /></svg>
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-emerald-800">
-                You're confirmed as a recipient of this campaign.
-              </p>
-              <p className="text-xs text-emerald-700 mt-0.5">
-                To load your allocation, paste your claim link below or upload the campaign file.
-              </p>
+          {pageState === "confirmed-no-payload" ? (
+            /* Confirmation badge — registry verified this wallet is a recipient */
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 flex items-center gap-3">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5" /></svg>
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-emerald-800">
+                  You're confirmed as a recipient of this campaign.
+                </p>
+                <p className="text-xs text-emerald-700 mt-0.5">
+                  To load your allocation, paste your claim link below or upload the campaign file.
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            /* no-link — wallet connected, but no claim link/payload loaded yet */
+            <div className="rounded-xl border border-violet-edge bg-violet-tint/40 p-4 flex items-center gap-3">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet/10 text-violet">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-ink">
+                  No claim link loaded.
+                </p>
+                <p className="text-xs text-mute mt-0.5">
+                  Open the claim link your sender shared, or paste/upload your campaign file below to check your allocation.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Payload import: paste link or upload file */}
           <div className="rounded-xl border border-edge bg-panel p-5 space-y-4">
@@ -678,7 +702,9 @@ export function Claim() {
             {/* Verified badge */}
             {decryptedAmount !== null && (
               <div className="flex items-center gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 text-sm">
-                <span className="text-lg">🛡️</span>
+                <span className="shrink-0 text-emerald-600">
+                  <Shield size={22} />
+                </span>
                 <div>
                   <p className="font-semibold">Securely Verified</p>
                   <p className="text-xs opacity-90">
