@@ -279,21 +279,23 @@ export function StepRecipients({
 
       {}
       <div className="mt-6 flex flex-col gap-4 border-t border-edge pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-        <p className="text-sm text-mute text-center sm:text-left">
-          <span className="font-mono font-medium text-ink">{validCount}</span>{" "}
-          {noun}{validCount === 1 ? "" : "s"}
-          <span className="mx-2 text-ink/30">·</span>
-          <span className="font-mono font-bold" style={{ color: "var(--card-accent)" }}>
-            {formatTokens(total)}
-          </span>{" "}
-          tokens total
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:flex-wrap sm:gap-x-2">
+          <p className="text-sm text-mute">
+            <span className="font-mono font-medium text-ink">{validCount}</span>{" "}
+            {noun}{validCount === 1 ? "" : "s"}
+            <span className="mx-2 text-ink/30">·</span>
+            <span className="font-mono font-bold" style={{ color: "var(--card-accent)" }}>
+              {formatTokens(total)}
+            </span>{" "}
+            tokens total
+          </p>
           {validCount < recipients.length && (
-            <span className="mt-1 flex items-center gap-1.5 text-danger sm:mt-0 sm:inline-flex font-medium bg-danger/10 px-2.5 py-0.5 rounded-full">
-              <span className="hidden sm:inline-block mr-1 text-danger/40">•</span>
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-md border border-danger/20 bg-danger/8 px-2 py-0.5 text-xs font-semibold text-danger">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
               {recipients.length - validCount} need fixing
             </span>
           )}
-        </p>
+        </div>
         <button
           onClick={onNext}
           disabled={!canAdvance}

@@ -11,6 +11,9 @@ importers:
       '@gsap/react':
         specifier: ^2.1.2
         version: 2.1.2(gsap@3.15.0)(react@19.2.7)
+      '@lottiefiles/dotlottie-react':
+        specifier: ^0.19.5
+        version: 0.19.5(react@19.2.7)
       '@rainbow-me/rainbowkit':
         specifier: ^2.2.11
         version: 2.2.11(@tanstack/react-query@5.101.0(react@19.2.7))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.3)(viem@2.52.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.4.3))(wagmi@2.19.5(@tanstack/query-core@5.101.0)(@tanstack/react-query@5.101.0(react@19.2.7))(@types/react@19.2.17)(bufferutil@4.1.0)(react@19.2.7)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.52.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.4.3))(zod@4.4.3))
@@ -334,6 +337,16 @@ packages:
 
   '@lit/reactive-element@2.1.2':
     resolution: {integrity: sha512-pbCDiVMnne1lYUIaYNN5wrwQXDtHaYtg7YEFPeW+hws6U47WeFvISGUWekPGKWOP1ygrs0ef0o1VJMk1exos5A==}
+
+  '@lottiefiles/dotlottie-react@0.19.5':
+    resolution: {integrity: sha512-lkGPsdabX/GBWsOHabKdfa44DORg35W/r5bW4mnV2igomdP7a6OAJJe1A+/rWKYSuN/Cd7eJ8dpXLM+7h7182A==}
+    engines: {node: '>=18.17.0', npm: '>=9.5.0'}
+    peerDependencies:
+      react: ^17 || ^18 || ^19
+
+  '@lottiefiles/dotlottie-web@0.75.0':
+    resolution: {integrity: sha512-2IZAIK7TblPPxSsjmPsDrSDew2XYj422rWKmwjIUPH+zroUPK6/gImjkKoJhKOXzByLEo5bTPx9qW4DCZfM5/g==}
+    engines: {node: '>=18.17.0', npm: '>=9.5.0'}
 
   '@metamask/eth-json-rpc-provider@1.0.1':
     resolution: {integrity: sha512-whiUMPlAOrVGmX8aKYVPvlKyG4CpQXiNNyt74vE1xb5sPvmx5oA7B/kOi/JdBvhGQq97U1/AVdXEdk2zkP8qyA==}
@@ -3207,6 +3220,13 @@ snapshots:
   '@lit/reactive-element@2.1.2':
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.6.0
+
+  '@lottiefiles/dotlottie-react@0.19.5(react@19.2.7)':
+    dependencies:
+      '@lottiefiles/dotlottie-web': 0.75.0
+      react: 19.2.7
+
+  '@lottiefiles/dotlottie-web@0.75.0': {}
 
   '@metamask/eth-json-rpc-provider@1.0.1':
     dependencies:

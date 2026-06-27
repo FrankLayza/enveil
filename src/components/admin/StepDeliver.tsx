@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { shortAddress, recipientNoun, type CampaignType } from "@/lib/recipients";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { shortAddress, recipientNoun, type CampaignType, type Recipient } from "@/lib/recipients";
 import { type VestingRecipientDelivery, formatUnlockDate } from "@/lib/vesting";
 import { buildClaimLink } from "@/lib/claimLink";
 
 interface StepDeliverProps {
   tokenAddress: string;
   campaignAddress: string;
+  campaignName?: string;
+  recipients?: Recipient[];
   authorizations: Array<{
     address: string;
     amount: string;
@@ -14,7 +17,7 @@ interface StepDeliverProps {
     signature: string;
   }>;
   campaignType: CampaignType;
-  
+  /** Vesting deliveries (if campaign is vesting type). */
   vestingDeliveries?: VestingRecipientDelivery[];
   onReset: () => void;
 }
@@ -32,9 +35,8 @@ export function StepDeliver({
   const noun = recipientNoun(campaignType);
   const isVesting = !!vestingDeliveries && vestingDeliveries.length > 0;
 
-  
-  
-  
+  /* ── Per-recipient link builders ────────────────────────────────── */
+
   const getVestingClaimLink = (d: VestingRecipientDelivery) =>
     buildClaimLink(window.location.origin, {
       r: d.address,
@@ -63,14 +65,15 @@ export function StepDeliver({
     });
 
   const handleCopyLink = (auth: (typeof authorizations)[0], index: number) => {
-    const link = getClaimLink(auth);
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(getClaimLink(auth));
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  
+  /* ── CSV / JSON export ──────────────────────────────────────────── */
+
   const csvEscape = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+
   const handleCopyAllCsv = () => {
     const header = "label,address,amount,claimLink";
     const rows = authorizations.map((auth) =>
@@ -95,10 +98,7 @@ export function StepDeliver({
         signature: auth.signature,
       })),
     };
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -122,11 +122,7 @@ export function StepDeliver({
   };
 
   const handleDownloadVestingJson = () => {
-    const data = {
-      type: "vesting",
-      tokenAddress,
-      deliveries: vestingDeliveries,
-    };
+    const data = { type: "vesting", tokenAddress, deliveries: vestingDeliveries };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -138,27 +134,39 @@ export function StepDeliver({
     URL.revokeObjectURL(url);
   };
 
+  /* ── Render ─────────────────────────────────────────────────────── */
+
   return (
     <div className="animate-step-in space-y-6">
-      <div className="text-center py-6">
-        <span className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-panel border border-edge shadow-sm text-success-text">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 6 9 17l-5-5" />
-          </svg>
-        </span>
+
+      {/* ── Confetti hero header ──────────────────────────────────── */}
+      <div className="text-center py-4 flex flex-col items-center gap-1">
+        <div className="w-32 h-32 -mb-2">
+          <DotLottieReact
+            src="/Confetti Check.lottie"
+            autoplay
+            loop={false}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </div>
         <h2 className="text-2xl font-bold tracking-tight text-ink">
           Campaign Live!
         </h2>
-        <p className="text-sm text-ink/60 mt-2 max-w-md mx-auto">
-          Your campaign clone has been deployed, funded, and recipient payloads are authorized.
+        <p className="text-sm text-ink/60 mt-1 max-w-md mx-auto">
+          Your campaign has been deployed, funded, and recipient payloads are authorized.
         </p>
       </div>
 
+      {/* ── Campaign summary ──────────────────────────────────────── */}
       <div className="rounded-xl border border-edge bg-panel-2 p-5 space-y-4 text-sm shadow-xs">
         <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-0">
           <span className="text-ink/60 font-medium">Campaign Address</span>
-          <span className="font-mono font-medium text-ink hidden sm:inline break-all bg-panel px-2 py-0.5 rounded-md border border-edge">{campaignAddress}</span>
-          <span className="font-mono font-medium text-ink sm:hidden bg-panel px-2 py-0.5 rounded-md border border-edge">{shortAddress(campaignAddress)}</span>
+          <span className="font-mono font-medium text-ink hidden sm:inline break-all bg-panel px-2 py-0.5 rounded-md border border-edge">
+            {campaignAddress}
+          </span>
+          <span className="font-mono font-medium text-ink sm:hidden bg-panel px-2 py-0.5 rounded-md border border-edge">
+            {shortAddress(campaignAddress)}
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-ink/60 font-medium">Total {isVesting ? "grantees" : "Recipients"}</span>
@@ -176,57 +184,62 @@ export function StepDeliver({
         )}
       </div>
 
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-sm font-bold text-ink">Deliver allocations</h3>
-          <p className="text-xs text-ink/60 mt-1">
-            {isVesting
-              ? `Each link carries the grantee's full unlock schedule — amounts stay encrypted. Share one link per ${noun}; tranches unlock automatically on their dates.`
-              : "Amounts are private and never go on-chain. Share each private claim link with the matching " + noun + " — they open it to reveal and claim."}
-          </p>
+      {/* ── Export actions ────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <button
+          onClick={isVesting ? handleCopyAllVestingCsv : handleCopyAllCsv}
+          className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-edge bg-panel px-5 py-3 text-sm font-bold text-ink transition-all duration-150 hover:bg-panel-2 shadow-xs"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          {copiedAll ? "Copied all links!" : "Copy all as CSV"}
+        </button>
+        <button
+          onClick={isVesting ? handleDownloadVestingJson : handleDownloadJson}
+          className="flex-1 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-bold shadow-md transition-all duration-200 hover:-translate-y-0.5"
+          style={{ backgroundColor: "var(--card-accent)", color: "var(--card-accent-ink)" }}
+        >
+          <DownloadIcon /> Download Campaign File
+        </button>
+      </div>
+
+      {/* ── Per-recipient links table ─────────────────────────────── */}
+      <div className="rounded-xl border border-edge bg-panel shadow-xs overflow-hidden">
+        <div className="px-5 py-4 border-b border-edge flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-ink">Claim links</h3>
+            <p className="text-xs text-ink/50 mt-0.5">
+              Send each {noun} their personal link — it carries their private allocation and loads automatically.
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <button
-            onClick={isVesting ? handleCopyAllVestingCsv : handleCopyAllCsv}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-bold shadow-md transition-all duration-200 hover:-translate-y-0.5"
-            style={{ backgroundColor: "var(--card-accent)", color: "var(--card-accent-ink)" }}
-          >
-            {copiedAll ? "Copied all links!" : "Copy all as CSV"}
-          </button>
-          <button
-            onClick={isVesting ? handleDownloadVestingJson : handleDownloadJson}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-edge bg-panel px-5 py-3.5 text-sm font-bold text-ink transition-all duration-150 hover:bg-panel-2 shadow-xs"
-          >
-            <DownloadIcon /> Download JSON
-          </button>
-        </div>
-
-        {/* Links list */}
-        <div className="rounded-xl border border-edge bg-panel shadow-sm max-h-60 overflow-y-auto overflow-x-auto">
+        <div className="max-h-72 overflow-y-auto overflow-x-auto">
           <table className="w-full text-left text-sm min-w-[380px]">
-            <thead className="bg-panel-2 text-[11px] font-bold uppercase tracking-widest text-ink/50 border-b border-edge">
+            <thead className="bg-panel-2 text-[11px] font-bold uppercase tracking-widest text-ink/50 border-b border-edge sticky top-0">
               <tr>
-                <th className="px-3 sm:px-4 py-3">Label</th>
-                <th className="px-3 sm:px-4 py-3">{noun}</th>
-                <th className="px-3 sm:px-4 py-3 text-right">{isVesting ? "Total" : "Amount"}</th>
-                {isVesting && <th className="px-3 sm:px-4 py-3 text-right">Unlocks</th>}
-                <th className="px-3 sm:px-4 py-3 text-right">Action</th>
+                <th className="px-4 py-3">Label</th>
+                <th className="px-4 py-3">{noun}</th>
+                <th className="px-4 py-3 text-right">{isVesting ? "Total" : "Amount"}</th>
+                {isVesting && <th className="px-4 py-3 text-right">Unlocks</th>}
+                <th className="px-4 py-3 text-right">Link</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-edge/60 font-mono text-sm">
               {isVesting
                 ? vestingDeliveries!.map((d, idx) => (
                     <tr key={d.address} className="transition-colors hover:bg-panel-2/50">
-                      <td className="px-3 sm:px-4 py-3 font-sans text-ink">
+                      <td className="px-4 py-3 font-sans text-ink">
                         {d.label ? d.label : <span className="text-ink/30">—</span>}
                       </td>
-                      <td className="px-3 sm:px-4 py-3 text-ink">{shortAddress(d.address)}</td>
-                      <td className="px-3 sm:px-4 py-3 text-right text-ink font-semibold">{d.totalAmount}</td>
-                      <td className="px-3 sm:px-4 py-3 text-right text-ink/60" title={d.tranches.map((t) => formatUnlockDate(t.unlockTs)).join(", ")}>
+                      <td className="px-4 py-3 text-ink">{shortAddress(d.address)}</td>
+                      <td className="px-4 py-3 text-right text-ink font-semibold">{d.totalAmount}</td>
+                      <td
+                        className="px-4 py-3 text-right text-ink/60"
+                        title={d.tranches.map((t) => formatUnlockDate(t.unlockTs)).join(", ")}
+                      >
                         {d.tranches.length}
                       </td>
-                      <td className="px-3 sm:px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(getVestingClaimLink(d));
@@ -236,25 +249,35 @@ export function StepDeliver({
                           className="inline-flex items-center gap-1 text-xs font-bold hover:opacity-80 transition-opacity"
                           style={{ color: "var(--card-accent)" }}
                         >
-                          {copiedIndex === idx ? "Copied!" : "Copy link"}
+                          {copiedIndex === idx ? (
+                            <>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                              Copied!
+                            </>
+                          ) : "Copy link"}
                         </button>
                       </td>
                     </tr>
                   ))
                 : authorizations.map((auth, idx) => (
                     <tr key={auth.address} className="transition-colors hover:bg-panel-2/50">
-                      <td className="px-3 sm:px-4 py-3 font-sans text-ink">
+                      <td className="px-4 py-3 font-sans text-ink">
                         {auth.label ? auth.label : <span className="text-ink/30">—</span>}
                       </td>
-                      <td className="px-3 sm:px-4 py-3 text-ink">{shortAddress(auth.address)}</td>
-                      <td className="px-3 sm:px-4 py-3 text-right text-ink font-semibold">{auth.amount}</td>
-                      <td className="px-3 sm:px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-ink">{shortAddress(auth.address)}</td>
+                      <td className="px-4 py-3 text-right text-ink font-semibold">{auth.amount}</td>
+                      <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleCopyLink(auth, idx)}
                           className="inline-flex items-center gap-1 text-xs font-bold hover:opacity-80 transition-opacity"
                           style={{ color: "var(--card-accent)" }}
                         >
-                          {copiedIndex === idx ? "Copied!" : "Copy link"}
+                          {copiedIndex === idx ? (
+                            <>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                              Copied!
+                            </>
+                          ) : "Copy link"}
                         </button>
                       </td>
                     </tr>
@@ -264,6 +287,7 @@ export function StepDeliver({
         </div>
       </div>
 
+      {/* ── Reset ─────────────────────────────────────────────────── */}
       <div className="flex items-center justify-center border-t border-edge pt-8 mt-8">
         <button
           onClick={onReset}

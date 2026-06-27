@@ -86,3 +86,9 @@ export function decodeClaimPayload(z: string): ClaimPayload | null {
     return null;
   }
 }
+
+/** Build a simple campaign link (no payload — just the campaign address). */
+export function buildCampaignLink(origin: string, campaignAddress: string): string {
+  return `${origin}/claim/${campaignAddress}`;
+}
+

@@ -242,6 +242,8 @@ export function CampaignWizard() {
           <StepDeliver
             tokenAddress={tokenAddress}
             campaignAddress={campaignAddress}
+            campaignName={campaignName}
+            recipients={recipients}
             authorizations={[]}
             vestingDeliveries={vestingDeliveries}
             campaignType={campaignType}
@@ -296,6 +298,8 @@ export function CampaignWizard() {
           <StepDeliver
             tokenAddress={tokenAddress}
             campaignAddress={campaignAddress}
+            campaignName={campaignName}
+            recipients={recipients}
             authorizations={authorizations}
             campaignType={campaignType}
             onReset={handleReset}
